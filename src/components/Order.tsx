@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Grid, MenuItem, FormControlLabel } from "@material-ui/core";
 import {
   BccTypography,
@@ -52,8 +52,25 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: "space-between",
       fontSize: 12,
     },
+    privateDate: {
+      "& > div": {
+        display: "flex",
+        flexDirection: "column",
+      },
+    },
     inputStyle: {
-      marginBottom: 30,
+      marginBottom: 24,
+      textAlign: "left",
+      "& p": {
+        fontSize: 14,
+        marginTop: 4,
+        whiteSpace: "break-spaces",
+        opacity: 0.7,
+        padding: 0,
+        margin: 0,
+      },
+    },
+    inputStyleLast: {
       width: 360,
       textAlign: "left",
     },
@@ -103,6 +120,16 @@ const useStyles = makeStyles((theme: Theme) =>
         width: "calc(40% - 16px)",
       },
     },
+    menuBranch: {
+      display: "block",
+      "& > p": {
+        fontSize: 14,
+        marginTop: 2,
+        opacity: 0.7,
+        padding: 0,
+        margin: 0,
+      },
+    },
   })
 );
 
@@ -136,24 +163,50 @@ const BccMaskedIinInput = (props: TextMaskCustomProps) => {
   );
 };
 
+interface MarkersProps {
+  name: string;
+  address: string;
+  depId: string;
+}
+
+interface BranchesProps {
+  map: any;
+  markers: MarkersProps[];
+  value: string;
+}
+
 const Order = (props: any) => {
   const classes = useStyles({});
   const [step, setStep] = React.useState(0);
-  const [price, setPrice] = React.useState(15000000);
-  const [pay, setPay] = React.useState(3000000);
-  const [income, setIncome] = React.useState(100000);
-  const [reason, setReason] = React.useState(-1);
+  const [price, setPrice] = React.useState("15000000");
+  const [pay, setPay] = React.useState("3000000");
+  const [income, setIncome] = React.useState("100000");
+  const [program, setProgram] = React.useState(-1);
+  const [cities, setCities] = React.useState<BranchesProps[] | null>(null);
+  const [city, setCity] = React.useState("-1");
+  const [branch, setBranch] = React.useState(-1);
   const [isLoading, setLoading] = React.useState(false);
   const [agree, setAgree] = React.useState(true);
-  const [fio, setFio] = React.useState("");
+  const [firstName, setFirstName] = React.useState("");
+  const [secondName, setSecondName] = React.useState("");
+  const [thirdName, setThirdName] = React.useState("");
+  const [family, setFamily] = React.useState(-1);
+  const [dependents, setDependents] = React.useState("0");
   const [iin, setIin] = React.useState("");
   const [code, setCode] = React.useState("");
   const [profession, setProfession] = React.useState(-1);
   const [email, setEmail] = React.useState("");
-  const [period, setPeriod] = React.useState(180);
+  const [period, setPeriod] = React.useState("180");
   const [phone, setPhone] = React.useState("");
   const [phoneError, setPhoneError] = React.useState<boolean>(false);
   const [iinError, setIinError] = React.useState<boolean>(false);
+
+  useEffect(() => {
+    api.reference
+      .getCityBranches()
+      .then((res) => setCities(res))
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <div className={classes.outerContainer} ref={props.refProp}>
@@ -161,19 +214,19 @@ const Order = (props: any) => {
         <BlockUi tag="div" blocking={isLoading}>
           {step === 0 ? (
             <>
+              <BccTypography block type="h4" color="#4D565F" mb="28px">
+                Ориентировочный расчет ипотеки
+              </BccTypography>
               <Grid container wrap="nowrap" justify="flex-start">
                 <Grid item className={classes.firstBlock}>
-                  <BccTypography block type="h4" color="#4D565F" mb="28px">
-                    Ориентировочный расчет ипотеки
-                  </BccTypography>
                   <BccInput
                     fullWidth={true}
                     className={classes.inputStyle}
-                    label="Причина отсрочки"
-                    id="reason"
-                    name="reason"
-                    value={reason}
-                    onChange={(e: any) => setReason(e.target.value)}
+                    label="Программа"
+                    id="program"
+                    name="program"
+                    value={program}
+                    onChange={(e: any) => setProgram(e.target.value)}
                     variant="outlined"
                     select
                   >
@@ -192,52 +245,76 @@ const Order = (props: any) => {
                     fullWidth={true}
                     className={classes.inputStyle}
                     label="Местонахождение недвижимости"
-                    id="reason"
-                    name="reason"
-                    value={reason}
-                    onChange={(e: any) => setReason(e.target.value)}
+                    id="city"
+                    name="city"
+                    value={city}
+                    onChange={(e: any) => setCity(e.target.value)}
                     variant="outlined"
                     select
                   >
-                    <MenuItem value={-1}>Выберете город</MenuItem>
-                    <MenuItem key={0} value={0}>
-                      Нур-Султан
-                    </MenuItem>
-                    <MenuItem key={1} value={1}>
-                      Алматы
-                    </MenuItem>
-                    <MenuItem key={2} value={2}>
-                      Шымкент
-                    </MenuItem>
-                    <MenuItem key={3} value={3}>
-                      Тараз
-                    </MenuItem>
+                    <MenuItem value="-1">Выберите город</MenuItem>
+                    {cities &&
+                      cities.map((b: BranchesProps, index: number) => {
+                        return (
+                          b.value !== null && (
+                            <MenuItem key={index} value={b.value}>
+                              {b.value}
+                            </MenuItem>
+                          )
+                        );
+                      })}
+                  </BccInput>
+                  <BccInput
+                    fullWidth={true}
+                    className={classes.inputStyle}
+                    label="Отделение"
+                    id="branch"
+                    name="branch"
+                    value={branch}
+                    onChange={(e: any) => setBranch(e.target.value)}
+                    variant="outlined"
+                    select
+                  >
+                    <MenuItem value={-1}>Выберите отделение</MenuItem>
+                    {cities &&
+                      cities.filter(
+                        (d: BranchesProps) => d.value === city
+                      )[0] &&
+                      cities
+                        .filter((d: BranchesProps) => d.value === city)[0]
+                        .markers.map((c: MarkersProps, i: number) => (
+                          <MenuItem
+                            value={c.depId}
+                            key={i}
+                            className={classes.menuBranch}
+                          >
+                            {c.name}
+                            <br />
+                            <p>{c.address}</p>
+                          </MenuItem>
+                        ))}
                   </BccInput>
                   <div className={classes.paymentWrap}>
                     <div className={classes.sliderWrap}>
                       <BccInput
                         label="Стоимость недвижимости"
                         key="price"
-                        value={
-                          price
-                            .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " ₸."
-                        }
+                        value={`${price.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}${
+                          price !== "" ? " ₸" : ""
+                        }`}
                         variant="filled"
                         InputLabelProps={{
                           shrink: true,
                         }}
-                        onChange={(e: any) =>
-                          +e.target.value.slice(0, -3).replace(/ /g, "") >
-                          50000000
-                            ? setPrice(50000000)
-                            : +e.target.value.slice(0, -3).replace(/ /g, "") <
-                              1000000
-                            ? setPrice(1000000)
-                            : setPrice(
-                                e.target.value.slice(0, -3).replace(/ /g, "")
-                              )
-                        }
+                        onFocus={() => setPrice("")}
+                        onChange={(e: any) => {
+                          const s = +e.target.value.replace(
+                            /[^a-zA-Z0-9]/g,
+                            ""
+                          );
+                          if (s > 50000000) setPrice("50000000");
+                          else setPrice(s.toString());
+                        }}
                         className={classes.input}
                       />
                       <BccSlider
@@ -251,12 +328,16 @@ const Order = (props: any) => {
                         }}
                         min={1000000}
                         max={50000000}
-                        step={100000}
-                        value={price}
+                        step={50000}
+                        value={+price}
                         valueLabelDisplay="off"
-                        defaultValue={price}
+                        defaultValue={+price}
                         onChange={(e: any, val: any) =>
-                          setPrice(val instanceof Array ? val[1] : val)
+                          setPrice(
+                            val instanceof Array
+                              ? val[1].toString()
+                              : val.toString()
+                          )
                         }
                       />
                       <div className={classes.sliderRange}>
@@ -270,25 +351,22 @@ const Order = (props: any) => {
                       <BccInput
                         label="Первоначальный взнос"
                         key="pay"
-                        value={
-                          pay.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") +
-                          " ₸."
-                        }
+                        value={`${pay.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}${
+                          pay !== "" ? " ₸" : ""
+                        }`}
                         variant="filled"
                         InputLabelProps={{
                           shrink: true,
                         }}
-                        onChange={(e: any) =>
-                          +e.target.value.slice(0, -3).replace(/ /g, "") >
-                          10000000
-                            ? setPay(10000000)
-                            : +e.target.value.slice(0, -3).replace(/ /g, "") <
-                              3000000
-                            ? setPay(3000000)
-                            : setPay(
-                                e.target.value.slice(0, -3).replace(/ /g, "")
-                              )
-                        }
+                        onFocus={() => setPay("")}
+                        onChange={(e: any) => {
+                          const s = +e.target.value.replace(
+                            /[^a-zA-Z0-9]/g,
+                            ""
+                          );
+                          if (s > 10000000) setPay("10000000");
+                          else setPay(s.toString());
+                        }}
                         className={classes.input}
                       />
                       <BccSlider
@@ -302,12 +380,16 @@ const Order = (props: any) => {
                         }}
                         min={3000000}
                         max={10000000}
-                        step={100000}
-                        value={pay}
+                        step={50000}
+                        value={+pay}
                         valueLabelDisplay="off"
-                        defaultValue={pay}
+                        defaultValue={+pay}
                         onChange={(e: any, val: any) =>
-                          setPay(val instanceof Array ? val[1] : val)
+                          setPay(
+                            val instanceof Array
+                              ? val[1].toString()
+                              : val.toString()
+                          )
                         }
                       />
                       <div className={classes.sliderRange}>
@@ -321,24 +403,23 @@ const Order = (props: any) => {
                       <BccInput
                         label="Срок займа"
                         key="period"
-                        value={
-                          period
-                            .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " мес."
-                        }
+                        value={`${period.replace(
+                          /\B(?=(\d{3})+(?!\d))/g,
+                          " "
+                        )}${period !== "" ? " мес." : ""}`}
                         variant="filled"
                         InputLabelProps={{
                           shrink: true,
                         }}
-                        onChange={(e: any) =>
-                          +e.target.value.slice(0, -5).replace(/ /g, "") > 300
-                            ? setPeriod(300)
-                            : +e.target.value.slice(0, -5).replace(/ /g, "") < 1
-                            ? setPeriod(1)
-                            : setPeriod(
-                                e.target.value.slice(0, -5).replace(/ /g, "")
-                              )
-                        }
+                        onFocus={() => setPeriod("")}
+                        onChange={(e: any) => {
+                          const s = +e.target.value.replace(
+                            /[^a-zA-Z0-9]/g,
+                            ""
+                          );
+                          if (s > 300) setPeriod("300");
+                          else setPeriod(s.toString());
+                        }}
                         className={classes.input}
                       />
                       <BccSlider
@@ -353,11 +434,15 @@ const Order = (props: any) => {
                         min={1}
                         max={300}
                         step={1}
-                        value={period}
+                        value={+period}
                         valueLabelDisplay="off"
-                        defaultValue={period}
+                        defaultValue={+period}
                         onChange={(e: any, val: any) =>
-                          setPeriod(val instanceof Array ? val[1] : val)
+                          setPeriod(
+                            val instanceof Array
+                              ? val[1].toString()
+                              : val.toString()
+                          )
                         }
                       />
                       <div className={classes.sliderRange}>
@@ -406,24 +491,49 @@ const Order = (props: any) => {
               >
                 Личные данные
               </BccTypography>
-              <Grid container wrap="nowrap" justify="space-between">
+              <Grid
+                container
+                wrap="nowrap"
+                justify="space-between"
+                className={classes.privateDate}
+              >
                 <Grid item>
                   <BccInput
                     className={classes.inputStyle}
-                    label="Фамилия Имя Отчество"
+                    label="Фамилия"
                     variant="filled"
-                    id="fio"
+                    id="firstName"
                     fillWidth
-                    name="fio"
-                    value={fio}
-                    onChange={(e: any) => setFio(e.target.value)}
+                    name="firstName"
+                    value={firstName}
+                    onChange={(e: any) => setFirstName(e.target.value)}
+                  />
+                  <BccInput
+                    className={classes.inputStyle}
+                    label="Имя"
+                    variant="filled"
+                    id="secondName"
+                    fillWidth
+                    name="secondName"
+                    value={secondName}
+                    onChange={(e: any) => setSecondName(e.target.value)}
+                  />
+                  <BccInput
+                    className={classes.inputStyle}
+                    label="Отчество"
+                    variant="filled"
+                    id="thirdName"
+                    fillWidth
+                    name="thirdName"
+                    value={thirdName}
+                    onChange={(e: any) => setThirdName(e.target.value)}
                   />
                   <BccInput
                     variant="filled"
                     fullWidth
                     label="Номер телефона"
                     onChange={(e: any) => setPhone(e.target.value)}
-                    className={classes.inputStyle}
+                    className={classes.inputStyleLast}
                     helperText={
                       phoneError ? "Неверный формат номера телефона" : ""
                     }
@@ -461,6 +571,25 @@ const Order = (props: any) => {
                   <BccInput
                     fullWidth={true}
                     className={classes.inputStyle}
+                    label="Семейное положение"
+                    id="family"
+                    name="family"
+                    value={family}
+                    onChange={(e: any) => setFamily(e.target.value)}
+                    variant="outlined"
+                    select
+                  >
+                    <MenuItem value={-1}>Семейное положение</MenuItem>
+                    <MenuItem key={0} value={0}>
+                      Холост
+                    </MenuItem>
+                    <MenuItem key={1} value={1}>
+                      Женат/Замужем
+                    </MenuItem>
+                  </BccInput>
+                  <BccInput
+                    fullWidth={true}
+                    className={classes.inputStyle}
                     label="Профессия"
                     id="profession"
                     name="profession"
@@ -474,49 +603,95 @@ const Order = (props: any) => {
                       Военнослужащий
                     </MenuItem>
                     <MenuItem key={1} value={1}>
-                      Частный судебный исполнитель
+                      Натариус
                     </MenuItem>
                     <MenuItem key={2} value={2}>
+                      Частный судебный исполнитель
+                    </MenuItem>
+                    <MenuItem key={3} value={3}>
                       Юрист
                     </MenuItem>
+                    <MenuItem key={4} value={4}>
+                      Иное
+                    </MenuItem>
                   </BccInput>
+                  <div className={classes.paymentWrap}>
+                    <div className={classes.sliderWrap}>
+                      <BccInput
+                        label="Количество иждивенцев"
+                        key="dependents"
+                        value={`${dependents.replace(
+                          /\B(?=(\d{3})+(?!\d))/g,
+                          " "
+                        )}${dependents !== "" ? " чел." : ""}`}
+                        variant="filled"
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        onFocus={() => setDependents("")}
+                        onChange={(e: any) => {
+                          const s = +e.target.value.replace(
+                            /[^a-zA-Z0-9]/g,
+                            ""
+                          );
+                          if (s > 9) setDependents("9");
+                          else setDependents(s.toString());
+                        }}
+                        className={classes.input}
+                      />
+                      <BccSlider
+                        style={{
+                          left: 6,
+                          right: 6,
+                          width: "calc(100% - 12px)",
+                          bottom: -1,
+                          padding: 0,
+                          position: "absolute",
+                        }}
+                        min={0}
+                        max={9}
+                        step={1}
+                        value={+dependents}
+                        valueLabelDisplay="off"
+                        defaultValue={+dependents}
+                        onChange={(e: any, val: any) =>
+                          setDependents(
+                            val instanceof Array
+                              ? val[1].toString()
+                              : val.toString()
+                          )
+                        }
+                      />
+                      <div className={classes.sliderRange}>
+                        <span>0</span>
+                        <span>9</span>
+                      </div>
+                    </div>
+                  </div>
                 </Grid>
                 <Grid item>
-                  <BccInput
-                    className={classes.inputStyle}
-                    label="E-mail (опционально)"
-                    variant="filled"
-                    id="email"
-                    fillWidth
-                    name="email"
-                    value={email}
-                    onChange={(e: any) => setEmail(e.target.value)}
-                  />
                   <div className={classes.paymentWrap}>
                     <div className={classes.sliderWrap}>
                       <BccInput
                         label="Доход"
                         key="income"
-                        value={
-                          income
-                            .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " ₸."
-                        }
+                        value={`${income.replace(
+                          /\B(?=(\d{3})+(?!\d))/g,
+                          " "
+                        )}${income !== "" ? " ₸" : ""}`}
                         variant="filled"
                         InputLabelProps={{
                           shrink: true,
                         }}
-                        onChange={(e: any) =>
-                          +e.target.value.slice(0, -3).replace(/ /g, "") >
-                          10000000
-                            ? setPay(10000000)
-                            : +e.target.value.slice(0, -3).replace(/ /g, "") <
-                              100000
-                            ? setPay(100000)
-                            : setPay(
-                                e.target.value.slice(0, -3).replace(/ /g, "")
-                              )
-                        }
+                        onFocus={() => setIncome("")}
+                        onChange={(e: any) => {
+                          const s = +e.target.value.replace(
+                            /[^a-zA-Z0-9]/g,
+                            ""
+                          );
+                          if (s > 10000000) setIncome("10000000");
+                          else setIncome(s.toString());
+                        }}
                         className={classes.input}
                       />
                       <BccSlider
@@ -530,12 +705,16 @@ const Order = (props: any) => {
                         }}
                         min={100000}
                         max={10000000}
-                        step={10000}
-                        value={income}
+                        step={1}
+                        value={+income}
                         valueLabelDisplay="off"
-                        defaultValue={pay}
+                        defaultValue={+income}
                         onChange={(e: any, val: any) =>
-                          setPay(val instanceof Array ? val[1] : val)
+                          setIncome(
+                            val instanceof Array
+                              ? val[1].toString()
+                              : val.toString()
+                          )
                         }
                       />
                       <div className={classes.sliderRange}>
@@ -544,9 +723,19 @@ const Order = (props: any) => {
                       </div>
                     </div>
                   </div>
+
+                  <BccInput
+                    className={classes.inputStyle}
+                    label="E-mail (опционально)"
+                    variant="filled"
+                    id="email"
+                    fillWidth
+                    name="email"
+                    value={email}
+                    onChange={(e: any) => setEmail(e.target.value)}
+                  />
                 </Grid>
               </Grid>
-
               <Grid
                 container
                 justify="flex-start"
