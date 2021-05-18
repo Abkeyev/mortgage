@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/mortgage/test/static/css/main.f57910f7.chunk.css",
+    "main.js": "/mortgage/test/static/js/main.b4edd962.chunk.js",
+    "main.js.map": "/mortgage/test/static/js/main.b4edd962.chunk.js.map",
+    "runtime-main.js": "/mortgage/test/static/js/runtime-main.04d44106.js",
+    "runtime-main.js.map": "/mortgage/test/static/js/runtime-main.04d44106.js.map",
+    "static/js/2.070e8020.chunk.js": "/mortgage/test/static/js/2.070e8020.chunk.js",
+    "static/js/2.070e8020.chunk.js.map": "/mortgage/test/static/js/2.070e8020.chunk.js.map",
+    "index.html": "/mortgage/test/index.html",
+    "precache-manifest.cefed820f2e4d9ca860a1511c2a30594.js": "/mortgage/test/precache-manifest.cefed820f2e4d9ca860a1511c2a30594.js",
+    "service-worker.js": "/mortgage/test/service-worker.js",
+    "static/css/main.f57910f7.chunk.css.map": "/mortgage/test/static/css/main.f57910f7.chunk.css.map",
+    "static/js/2.070e8020.chunk.js.LICENSE.txt": "/mortgage/test/static/js/2.070e8020.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.04d44106.js",
+    "static/js/2.070e8020.chunk.js",
+    "static/css/main.f57910f7.chunk.css",
+    "static/js/main.b4edd962.chunk.js"
+  ]
+}
