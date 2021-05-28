@@ -11,7 +11,7 @@ export class CamundaController {
         variables,
       },
       {
-        baseURL: webConfigEnv.GREEN_API,
+        baseURL: webConfigEnv.GREEN_API_TEST,
       }
     );
   }
@@ -23,7 +23,7 @@ export class CamundaController {
         variables,
       },
       {
-        baseURL: webConfigEnv.GREEN_API,
+        baseURL: webConfigEnv.GREEN_API_TEST,
       }
     );
   }

@@ -283,6 +283,7 @@ const Order = (props: any) => {
   const [openError, setOpenError] = useState(false);
   const [iinError, setIinError] = useState<boolean>(false);
   const [timer, setTimer] = useState(0);
+  const [analys, setAnalys] = useState<boolean | -1>(-1);
   const [rate, setRate] = useState("");
 
   React.useEffect(() => {
@@ -481,6 +482,7 @@ const Order = (props: any) => {
                     onChange={(e: any) => {
                       if (e.target.value !== -1) {
                         if (e.target.value.code === "0.201.1.1123") {
+                          setAnalys(-1);
                           setPeriodMin("3");
                           setPeriodMax("300");
                           if (
@@ -500,6 +502,7 @@ const Order = (props: any) => {
                           e.target.value.code === "0.201.1.1124" ||
                           e.target.value.code === "0.201.1.1129"
                         ) {
+                          setAnalys(-1);
                           setPeriodMin("3");
                           setPeriodMax("180");
                           if (city === "ALM" || city === "AST") {
@@ -515,6 +518,11 @@ const Order = (props: any) => {
                           } else {
                             setPriceMax("15000000");
                           }
+                        } else if (
+                          e.target.value.code === "0.201.1.1121" ||
+                          e.target.value.code === "0.201.1.1131"
+                        ) {
+                          setAnalys(false);
                         }
                         setProgram(e.target.value);
                       }
@@ -588,6 +596,28 @@ const Order = (props: any) => {
                       </div>
                     </div>
                   </div>
+                  {analys !== -1 && (
+                    <Grid
+                      container
+                      justify="flex-start"
+                      wrap="nowrap"
+                      className={classes.checkboxText}
+                    >
+                      <Grid item>
+                        <BccCheckbox
+                          value="analys"
+                          color="primary"
+                          checked={analys}
+                          onChange={() => setAnalys(!analys)}
+                        />
+                      </Grid>
+                      <Grid item>
+                        <BccTypography type="p3" ml="10px">
+                          Без анализа платежеспособности
+                        </BccTypography>
+                      </Grid>
+                    </Grid>
+                  )}
                 </Grid>
                 <Grid item className={classes.firstBlock}>
                   <BccInput

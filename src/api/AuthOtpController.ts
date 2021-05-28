@@ -26,7 +26,7 @@ export class AuthOtpController {
         ...request,
       },
       {
-        baseURL: webConfigEnv.OTP_URL,
+        baseURL: webConfigEnv.GREEN_API_TEST,
       }
     );
   }
@@ -38,7 +38,7 @@ export class AuthOtpController {
         ...request,
       },
       {
-        baseURL: webConfigEnv.GREEN_API,
+        baseURL: webConfigEnv.GREEN_API_TEST,
       }
     );
   }
