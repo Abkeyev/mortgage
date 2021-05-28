@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Grid, MenuItem, FormControlLabel } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
+import { Grid, MenuItem, Snackbar } from "@material-ui/core";
 import {
   BccTypography,
   BccCheckbox,
@@ -12,8 +12,12 @@ import {
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import MaskedInput from "react-maskedinput";
 import BlockUi from "react-block-ui";
+import { Alert as MuiAlert } from "@material-ui/lab";
 import api from "../api/Api";
 const webConfigEnv = (window as any).env;
+const Alert = (props: any) => {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -26,6 +30,17 @@ const useStyles = makeStyles((theme: Theme) =>
       boxSizing: "border-box",
       padding: "30px 48px 80px",
     },
+    code: {
+      margin: 0,
+      "& input": {
+        height: 62,
+        boxSizing: "border-box",
+      },
+    },
+    timer: {
+      fontSize: 16,
+      color: "#4D565F",
+    },
     paymentWrap: {
       position: "relative",
       marginBottom: 40,
@@ -36,6 +51,13 @@ const useStyles = makeStyles((theme: Theme) =>
       width: "100%",
     },
     input: {
+      display: "block",
+      width: "100%",
+      "& > div": {
+        width: "inherit",
+      },
+    },
+    inputSlider: {
       display: "block",
       width: "100%",
       "& > div": {
@@ -111,15 +133,6 @@ const useStyles = makeStyles((theme: Theme) =>
       textAlign: "center",
       backgroundColor: "rgba(125, 206, 160, 0.1)",
     },
-    code: {
-      marginBottom: 40,
-      "& > div:first-child": {
-        width: "calc(60% - 16px)",
-      },
-      "& > div:nth-child(2)": {
-        width: "calc(40% - 16px)",
-      },
-    },
     menuBranch: {
       display: "block",
       "& > p": {
@@ -128,6 +141,19 @@ const useStyles = makeStyles((theme: Theme) =>
         opacity: 0.7,
         padding: 0,
         margin: 0,
+      },
+    },
+    linkReSendSms: {
+      color: "#3F0259",
+      fontSize: 16,
+      height: "auto",
+      padding: 0,
+      lineHeight: "initial",
+      cursor: "pointer",
+      textTransform: "none",
+      "&:hover, &:active": {
+        textDecoration: "underline",
+        opacity: 0.8,
       },
     },
   })
@@ -150,6 +176,65 @@ const BccMaskedInput = (props: TextMaskCustomProps) => {
   );
 };
 
+interface ProgramProps {
+  title: string;
+  code: string;
+  rate: string;
+  rate2?: string;
+  rate3?: string;
+  rate4?: string;
+  spurcode: number;
+}
+
+interface MarkersProps {
+  name: string;
+  address: string;
+  depId: string;
+}
+
+interface BranchesProps {
+  code: any;
+  rusName: string;
+}
+
+const programms: ProgramProps[] = [
+  {
+    title: "7-20-25 Скоринг",
+    code: "0.201.1.1123",
+    rate: "7",
+    spurcode: 139,
+  },
+  {
+    title: "Ипотека Баспана-Хит",
+    code: "0.201.1.1124",
+    rate: "10.5",
+    spurcode: 112,
+  },
+  {
+    title: "Ипотека Баспана-Хит ДДУ",
+    code: "0.201.1.1129",
+    rate: "10.5",
+    spurcode: 150,
+  },
+  {
+    title: "Собственная ипотека",
+    code: "0.201.1.1131",
+    rate: "15.5",
+    rate2: "12.99",
+    rate3: "11",
+    rate4: "15.4",
+    spurcode: 112,
+  },
+  {
+    title: "Собственная ипотека ДДУ",
+    code: "0.201.1.1121",
+    rate: "15.5",
+    rate2: "12.99",
+    rate3: "15.4",
+    spurcode: 139,
+  },
+];
+
 const BccMaskedIinInput = (props: TextMaskCustomProps) => {
   const { inputRef, ...other } = props;
 
@@ -163,47 +248,201 @@ const BccMaskedIinInput = (props: TextMaskCustomProps) => {
   );
 };
 
-interface MarkersProps {
-  name: string;
-  address: string;
-  depId: string;
-}
-
-interface BranchesProps {
-  map: any;
-  markers: MarkersProps[];
-  value: string;
-}
+interface ResProps {}
 
 const Order = (props: any) => {
   const classes = useStyles({});
-  const [step, setStep] = React.useState(0);
-  const [price, setPrice] = React.useState("15000000");
-  const [pay, setPay] = React.useState("3000000");
-  const [income, setIncome] = React.useState("100000");
-  const [program, setProgram] = React.useState(-1);
-  const [cities, setCities] = React.useState<BranchesProps[] | null>(null);
-  const [city, setCity] = React.useState("-1");
-  const [branch, setBranch] = React.useState(-1);
-  const [isLoading, setLoading] = React.useState(false);
-  const [agree, setAgree] = React.useState(true);
-  const [firstName, setFirstName] = React.useState("");
-  const [secondName, setSecondName] = React.useState("");
-  const [thirdName, setThirdName] = React.useState("");
-  const [family, setFamily] = React.useState(-1);
-  const [dependents, setDependents] = React.useState("0");
-  const [iin, setIin] = React.useState("");
-  const [code, setCode] = React.useState("");
-  const [profession, setProfession] = React.useState(-1);
-  const [email, setEmail] = React.useState("");
-  const [period, setPeriod] = React.useState("180");
-  const [phone, setPhone] = React.useState("");
-  const [phoneError, setPhoneError] = React.useState<boolean>(false);
-  const [iinError, setIinError] = React.useState<boolean>(false);
+  const [step, setStep] = useState(0);
+  const [price, setPrice] = useState("15000000");
+  const [priceMin, setPriceMin] = useState("1000000");
+  const [priceMax, setPriceMax] = useState("50000000");
+  const [pay, setPay] = useState("3000000");
+  const [payMin, setPayMin] = useState("3000000");
+  const [payMax, setPayMax] = useState("10000000");
+  const [res, setRes] = useState();
+  const [income, setIncome] = useState("100000");
+  const [program, setProgram] = useState<ProgramProps | -1>(-1);
+  const [cities, setCities] = useState<BranchesProps[] | null>(null);
+  const [city, setCity] = useState<string | -1>(-1);
+  const [isLoading, setLoading] = useState(false);
+  const [agree, setAgree] = useState(true);
+  const [firstName, setFirstName] = useState("");
+  const [secondName, setSecondName] = useState("");
+  const [thirdName, setThirdName] = useState("");
+  const [family, setFamily] = useState(-1);
+  const [dependents, setDependents] = useState("0");
+  const [iin, setIin] = useState("");
+  const [code, setCode] = useState("");
+  const [profession, setProfession] = useState(-1);
+  const [email, setEmail] = useState("");
+  const [period, setPeriod] = useState("180");
+  const [periodMin, setPeriodMin] = useState("1");
+  const [periodMax, setPeriodMax] = useState("300");
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState<boolean>(false);
+  const [openError, setOpenError] = useState(false);
+  const [iinError, setIinError] = useState<boolean>(false);
+  const [timer, setTimer] = useState(0);
+  const [rate, setRate] = useState("");
+
+  React.useEffect(() => {
+    let timeOut = setInterval(() => {
+      if (timer !== 0) {
+        setTimer(timer - 1);
+      }
+    }, 1000);
+    return () => clearInterval(timeOut);
+  }, [timer]);
+
+  const formatPhoneNumber = () => {
+    let res = phone;
+    if (phone.slice(0, 1) === "8") res = "7" + phone.slice(1);
+    return res.replace(/\(|\)| /g, "");
+  };
+
+  const isValid = () => {
+    return (
+      firstName.length > 1 &&
+      secondName.length > 1 &&
+      iin.length === 15 &&
+      phone.replace("_", "").length === 17 &&
+      program !== -1 &&
+      agree &&
+      profession !== -1 &&
+      city !== -1
+    );
+  };
+
+  const handleClose = () => {
+    setOpenError(false);
+  };
+
+  const getOtp = () => {
+    if (phone.substr(3, 1) !== "7") {
+      setPhoneError(true);
+      return;
+    } else setPhoneError(false);
+    setLoading(true);
+    setTimer(60);
+    api.authOtp
+      .sendOtp({ iin: iin.replace(/ /g, ""), phone: formatPhoneNumber() })
+      .then(() => {
+        localStorage.removeItem("userContext");
+        setStep(1);
+        props.scrollToOrder(false);
+        setLoading(false);
+      })
+      .catch((e: any) => {
+        console.error(e);
+        props.scrollToOrder(false);
+        setLoading(false);
+      });
+  };
+
+  const onSubmitOtp = () => {
+    setLoading(true);
+    api.authOtp
+      .confirmOtp({
+        iin: iin.replace(/ /g, ""),
+        phone: formatPhoneNumber(),
+        otp: code,
+      })
+      .then((userContext) => {
+        props.scrollToOrder(false);
+        localStorage.setItem("userContext", JSON.stringify(userContext));
+        startProcess();
+      })
+      .catch((e: any) => {
+        props.scrollToOrder(false);
+        console.error(e);
+        setLoading(false);
+      });
+  };
+
+  const onReSend = () => {
+    setLoading(true);
+    api.authOtp
+      .sendOtp({ iin: iin.replace(/ /g, ""), phone: formatPhoneNumber() })
+      .then(() => {
+        props.scrollToOrder(false);
+        setTimer(90);
+        setCode("");
+        setLoading(false);
+      })
+      .catch((e: any) => {
+        console.error(e);
+        props.scrollToOrder(false);
+        setLoading(false);
+      });
+  };
+
+  const getRate = () => {
+    if (program !== -1) {
+      if (program.code === "0.201.1.1123") {
+        return "7";
+      } else if (program.code === "0.201.1.1124") {
+        return "10.5";
+      } else if (program.code === "0.201.1.1129") {
+        return "10.75";
+      } else if (program.code === "0.201.1.1131") {
+        if (+period <= 120) {
+          if (+pay >= +price * 0.7) {
+            return "11";
+          } else return "11";
+        } else if (+period <= 180) {
+          if (+pay >= +price * 0.3) {
+            return "12.99";
+          } else if (+pay >= +price * 0.5) {
+            return "15.5";
+          } else return "12.99";
+        }
+      } else if (program.code === "0.201.1.1121") {
+        return "10.5";
+      }
+    }
+  };
+
+  const startProcess = () => {
+    api.camunda
+      .start({
+        env: {
+          production: webConfigEnv.PRODUCTION === "1",
+        },
+        client: {
+          iin: iin.replace(/ /g, ""),
+          name: secondName,
+          surname: firstName,
+          middle_name: thirdName,
+          phone: formatPhoneNumber(),
+          date: new Date().toJSON().slice(0, 10).split("-").reverse().join("."),
+          prod_code: program !== -1 && program.code,
+          initial_fee: +pay,
+          cost: +price,
+          term: period,
+          rate: program !== -1 && getRate(),
+          family_numb: dependents,
+          marital_status: family,
+          income: income,
+          profession: profession,
+          e_mail: email,
+          agreement: agree,
+        },
+      })
+      .then((res: any) => {
+        res && setRes(res);
+        setStep(2);
+        setLoading(false);
+      })
+      .catch((e: any) => {
+        console.error(e);
+        setOpenError(true);
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
     api.reference
-      .getCityBranches()
+      .getCities()
       .then((res) => setCities(res))
       .catch((err) => console.error(err));
   }, []);
@@ -211,13 +450,26 @@ const Order = (props: any) => {
   return (
     <div className={classes.outerContainer} ref={props.refProp}>
       <div className={classes.container}>
+        <Snackbar
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          open={openError}
+          autoHideDuration={6000}
+          onClose={handleClose}
+        >
+          <Alert onClose={handleClose} severity="error">
+            Возникла непредвиденная ошибка!
+          </Alert>
+        </Snackbar>
         <BlockUi tag="div" blocking={isLoading}>
           {step === 0 ? (
             <>
               <BccTypography block type="h4" color="#4D565F" mb="28px">
                 Ориентировочный расчет ипотеки
               </BccTypography>
-              <Grid container wrap="nowrap" justify="flex-start">
+              <Grid container wrap="nowrap" justify="space-between">
                 <Grid item className={classes.firstBlock}>
                   <BccInput
                     fullWidth={true}
@@ -226,74 +478,60 @@ const Order = (props: any) => {
                     id="program"
                     name="program"
                     value={program}
-                    onChange={(e: any) => setProgram(e.target.value)}
+                    onChange={(e: any) => {
+                      if (e.target.value !== -1) {
+                        if (e.target.value.code === "0.201.1.1123") {
+                          setPeriodMin("3");
+                          setPeriodMax("300");
+                          if (
+                            city === "ALM" ||
+                            city === "AST" ||
+                            city === "AKT" ||
+                            city === "ATR" ||
+                            city === "SMK"
+                          ) {
+                            setPriceMax("25000000");
+                          } else if (city === "KAR") {
+                            setPriceMax("20000000");
+                          } else {
+                            setPriceMax("15000000");
+                          }
+                        } else if (
+                          e.target.value.code === "0.201.1.1124" ||
+                          e.target.value.code === "0.201.1.1129"
+                        ) {
+                          setPeriodMin("3");
+                          setPeriodMax("180");
+                          if (city === "ALM" || city === "AST") {
+                            setPriceMax("35000000");
+                          } else if (
+                            city === "AKT" ||
+                            city === "ATR" ||
+                            city === "SMK"
+                          ) {
+                            setPriceMax("25000000");
+                          } else if (city === "KAR") {
+                            setPriceMax("20000000");
+                          } else {
+                            setPriceMax("15000000");
+                          }
+                        }
+                        setProgram(e.target.value);
+                      }
+                    }}
                     variant="outlined"
                     select
                   >
                     <MenuItem value={-1}>Выберите программу</MenuItem>
-                    <MenuItem key={0} value={0}>
-                      Ипотека “7-20-25”
-                    </MenuItem>
-                    <MenuItem key={1} value={1}>
-                      “7-20-25”
-                    </MenuItem>
-                    <MenuItem key={2} value={2}>
-                      Баспана Хит
-                    </MenuItem>
+                    {programms.map((b: any, index: number) => {
+                      return (
+                        <MenuItem key={index} value={b}>
+                          {b.title}
+                        </MenuItem>
+                      );
+                    })}
                   </BccInput>
-                  <BccInput
-                    fullWidth={true}
-                    className={classes.inputStyle}
-                    label="Местонахождение недвижимости"
-                    id="city"
-                    name="city"
-                    value={city}
-                    onChange={(e: any) => setCity(e.target.value)}
-                    variant="outlined"
-                    select
-                  >
-                    <MenuItem value="-1">Выберите город</MenuItem>
-                    {cities &&
-                      cities.map((b: BranchesProps, index: number) => {
-                        return (
-                          b.value !== null && (
-                            <MenuItem key={index} value={b.value}>
-                              {b.value}
-                            </MenuItem>
-                          )
-                        );
-                      })}
-                  </BccInput>
-                  <BccInput
-                    fullWidth={true}
-                    className={classes.inputStyle}
-                    label="Отделение"
-                    id="branch"
-                    name="branch"
-                    value={branch}
-                    onChange={(e: any) => setBranch(e.target.value)}
-                    variant="outlined"
-                    select
-                  >
-                    <MenuItem value={-1}>Выберите отделение</MenuItem>
-                    {cities &&
-                      cities.filter(
-                        (d: BranchesProps) => d.value === city
-                      )[0] &&
-                      cities
-                        .filter((d: BranchesProps) => d.value === city)[0]
-                        .markers.map((c: MarkersProps, i: number) => (
-                          <MenuItem
-                            value={c.depId}
-                            key={i}
-                            className={classes.menuBranch}
-                          >
-                            {c.name}
-                            <br />
-                            <p>{c.address}</p>
-                          </MenuItem>
-                        ))}
-                  </BccInput>
+
                   <div className={classes.paymentWrap}>
                     <div className={classes.sliderWrap}>
                       <BccInput
@@ -326,26 +564,56 @@ const Order = (props: any) => {
                           padding: 0,
                           position: "absolute",
                         }}
-                        min={1000000}
-                        max={50000000}
+                        min={+priceMin}
+                        max={+priceMax}
                         step={50000}
                         value={+price}
                         valueLabelDisplay="off"
                         defaultValue={+price}
-                        onChange={(e: any, val: any) =>
-                          setPrice(
+                        onChange={(e: any, val: any) => {
+                          let v =
                             val instanceof Array
                               ? val[1].toString()
-                              : val.toString()
-                          )
-                        }
+                              : val.toString();
+                          setPrice(v);
+                        }}
                       />
                       <div className={classes.sliderRange}>
-                        <span>1 000 000</span>
-                        <span>50 000 000</span>
+                        <span>
+                          {priceMin.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
+                        </span>
+                        <span>
+                          {priceMax.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
+                        </span>
                       </div>
                     </div>
                   </div>
+                </Grid>
+                <Grid item className={classes.firstBlock}>
+                  <BccInput
+                    fullWidth={true}
+                    className={classes.inputStyle}
+                    label="Местонахождение недвижимости"
+                    id="city"
+                    name="city"
+                    value={city}
+                    onChange={(e: any) => setCity(e.target.value)}
+                    variant="outlined"
+                    select
+                  >
+                    <MenuItem value={-1}>Выберите город</MenuItem>
+                    {cities &&
+                      cities.map((b: BranchesProps, index: number) => {
+                        return (
+                          b.code !== null && (
+                            <MenuItem key={index} value={b.code}>
+                              {b.rusName}
+                            </MenuItem>
+                          )
+                        );
+                      })}
+                  </BccInput>
+
                   <div className={classes.paymentWrap}>
                     <div className={classes.sliderWrap}>
                       <BccInput
@@ -378,8 +646,8 @@ const Order = (props: any) => {
                           padding: 0,
                           position: "absolute",
                         }}
-                        min={3000000}
-                        max={10000000}
+                        min={+payMin}
+                        max={+payMax}
                         step={50000}
                         value={+pay}
                         valueLabelDisplay="off"
@@ -393,11 +661,17 @@ const Order = (props: any) => {
                         }
                       />
                       <div className={classes.sliderRange}>
-                        <span>3 000 000</span>
-                        <span>10 000 000</span>
+                        <span>
+                          {payMin.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
+                        </span>
+                        <span>
+                          {payMax.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
+                        </span>
                       </div>
                     </div>
                   </div>
+                </Grid>
+                <Grid item className={classes.firstBlock}>
                   <div className={classes.paymentWrap}>
                     <div className={classes.sliderWrap}>
                       <BccInput
@@ -431,8 +705,8 @@ const Order = (props: any) => {
                           padding: 0,
                           position: "absolute",
                         }}
-                        min={1}
-                        max={300}
+                        min={+periodMin}
+                        max={+periodMax}
                         step={1}
                         value={+period}
                         valueLabelDisplay="off"
@@ -446,40 +720,64 @@ const Order = (props: any) => {
                         }
                       />
                       <div className={classes.sliderRange}>
-                        <span>1</span>
-                        <span>300</span>
+                        <span>{periodMin}</span>
+                        <span>{periodMax}</span>
                       </div>
                     </div>
                   </div>
-                </Grid>
-                <Grid item className={classes.sum}>
-                  <BccTypography block type="h3" mb="16px">
-                    Расчёт
-                  </BccTypography>
-                  <Grid container justify="space-between">
-                    <Grid item>
-                      <BccTypography block type="p3" color="#4D565F" mb="4px">
-                        Ежемесячный платёж
-                      </BccTypography>
-                      <BccTypography block type="h5">
-                        40 000 ₸
-                      </BccTypography>
-                    </Grid>
-                    <Grid item>
-                      <BccTypography
-                        ml="46px"
-                        block
-                        type="p3"
-                        color="#4D565F"
-                        mb="4px"
-                      >
-                        Сумма займа
-                      </BccTypography>
-                      <BccTypography block ml="46px" type="h5">
-                        12 000 000 ₸
-                      </BccTypography>
-                    </Grid>
-                  </Grid>
+                  <div className={classes.paymentWrap}>
+                    <div className={classes.sliderWrap}>
+                      <BccInput
+                        label="Доход"
+                        key="income"
+                        value={`${income.replace(
+                          /\B(?=(\d{3})+(?!\d))/g,
+                          " "
+                        )}${income !== "" ? " ₸" : ""}`}
+                        variant="filled"
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        onFocus={() => setIncome("")}
+                        onChange={(e: any) => {
+                          const s = +e.target.value.replace(
+                            /[^a-zA-Z0-9]/g,
+                            ""
+                          );
+                          if (s > 10000000) setIncome("10000000");
+                          else setIncome(s.toString());
+                        }}
+                        className={classes.inputSlider}
+                      />
+                      <BccSlider
+                        style={{
+                          left: 6,
+                          right: 6,
+                          width: "calc(100% - 12px)",
+                          bottom: -1,
+                          padding: 0,
+                          position: "absolute",
+                        }}
+                        min={100000}
+                        max={10000000}
+                        step={1}
+                        value={+income}
+                        valueLabelDisplay="off"
+                        defaultValue={+income}
+                        onChange={(e: any, val: any) =>
+                          setIncome(
+                            val instanceof Array
+                              ? val[1].toString()
+                              : val.toString()
+                          )
+                        }
+                      />
+                      <div className={classes.sliderRange}>
+                        <span>100 000</span>
+                        <span>10 000 000</span>
+                      </div>
+                    </div>
+                  </div>
                 </Grid>
               </Grid>
               <BccTypography
@@ -519,7 +817,7 @@ const Order = (props: any) => {
                     onChange={(e: any) => setSecondName(e.target.value)}
                   />
                   <BccInput
-                    className={classes.inputStyle}
+                    className={classes.inputStyleLast}
                     label="Отчество"
                     variant="filled"
                     id="thirdName"
@@ -528,12 +826,14 @@ const Order = (props: any) => {
                     value={thirdName}
                     onChange={(e: any) => setThirdName(e.target.value)}
                   />
+                </Grid>
+                <Grid item>
                   <BccInput
                     variant="filled"
                     fullWidth
                     label="Номер телефона"
                     onChange={(e: any) => setPhone(e.target.value)}
-                    className={classes.inputStyleLast}
+                    className={classes.inputStyle}
                     helperText={
                       phoneError ? "Неверный формат номера телефона" : ""
                     }
@@ -548,8 +848,6 @@ const Order = (props: any) => {
                       inputComponent: BccMaskedInput as any,
                     }}
                   />
-                </Grid>
-                <Grid item>
                   <BccInput
                     className={classes.inputStyle}
                     fullWidth
@@ -570,7 +868,7 @@ const Order = (props: any) => {
                   />
                   <BccInput
                     fullWidth={true}
-                    className={classes.inputStyle}
+                    className={classes.inputStyleLast}
                     label="Семейное положение"
                     id="family"
                     name="family"
@@ -580,13 +878,15 @@ const Order = (props: any) => {
                     select
                   >
                     <MenuItem value={-1}>Семейное положение</MenuItem>
-                    <MenuItem key={0} value={0}>
+                    <MenuItem key={0} value="Холост">
                       Холост
                     </MenuItem>
-                    <MenuItem key={1} value={1}>
+                    <MenuItem key={1} value="Женат/Замужем">
                       Женат/Замужем
                     </MenuItem>
                   </BccInput>
+                </Grid>
+                <Grid item>
                   <BccInput
                     fullWidth={true}
                     className={classes.inputStyle}
@@ -599,19 +899,19 @@ const Order = (props: any) => {
                     select
                   >
                     <MenuItem value={-1}>Выберите профессию</MenuItem>
-                    <MenuItem key={0} value={0}>
+                    <MenuItem key={0} value="Военнослужащий">
                       Военнослужащий
                     </MenuItem>
-                    <MenuItem key={1} value={1}>
+                    <MenuItem key={1} value="Натариус">
                       Натариус
                     </MenuItem>
-                    <MenuItem key={2} value={2}>
+                    <MenuItem key={2} value="Частный судебный исполнитель">
                       Частный судебный исполнитель
                     </MenuItem>
-                    <MenuItem key={3} value={3}>
+                    <MenuItem key={3} value="Юрист">
                       Юрист
                     </MenuItem>
-                    <MenuItem key={4} value={4}>
+                    <MenuItem key={4} value="Иное">
                       Иное
                     </MenuItem>
                   </BccInput>
@@ -668,62 +968,6 @@ const Order = (props: any) => {
                       </div>
                     </div>
                   </div>
-                </Grid>
-                <Grid item>
-                  <div className={classes.paymentWrap}>
-                    <div className={classes.sliderWrap}>
-                      <BccInput
-                        label="Доход"
-                        key="income"
-                        value={`${income.replace(
-                          /\B(?=(\d{3})+(?!\d))/g,
-                          " "
-                        )}${income !== "" ? " ₸" : ""}`}
-                        variant="filled"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        onFocus={() => setIncome("")}
-                        onChange={(e: any) => {
-                          const s = +e.target.value.replace(
-                            /[^a-zA-Z0-9]/g,
-                            ""
-                          );
-                          if (s > 10000000) setIncome("10000000");
-                          else setIncome(s.toString());
-                        }}
-                        className={classes.input}
-                      />
-                      <BccSlider
-                        style={{
-                          left: 6,
-                          right: 6,
-                          width: "calc(100% - 12px)",
-                          bottom: -1,
-                          padding: 0,
-                          position: "absolute",
-                        }}
-                        min={100000}
-                        max={10000000}
-                        step={1}
-                        value={+income}
-                        valueLabelDisplay="off"
-                        defaultValue={+income}
-                        onChange={(e: any, val: any) =>
-                          setIncome(
-                            val instanceof Array
-                              ? val[1].toString()
-                              : val.toString()
-                          )
-                        }
-                      />
-                      <div className={classes.sliderRange}>
-                        <span>100 000</span>
-                        <span>10 000 000</span>
-                      </div>
-                    </div>
-                  </div>
-
                   <BccInput
                     className={classes.inputStyle}
                     label="E-mail (опционально)"
@@ -763,8 +1007,9 @@ const Order = (props: any) => {
               <BccButton
                 className={classes.btn}
                 variant="contained"
+                disabled={!isValid()}
                 color="primary"
-                onClick={() => setStep(1)}
+                onClick={() => getOtp()}
               >
                 Далее
               </BccButton>
@@ -777,33 +1022,57 @@ const Order = (props: any) => {
               <BccTypography type="p1" block mb="80px">
                 Мы отправили код на номер +7 70* *** ** **
               </BccTypography>
-              <Grid container justify="space-between" className={classes.code}>
-                <Grid item>
+
+              <Grid
+                item
+                container
+                justify="space-between"
+                alignItems="center"
+                spacing={4}
+              >
+                <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
                   <BccInput
-                    className={classes.inputStyle}
-                    label="Код подтверждения"
-                    variant="filled"
+                    variant="outlined"
+                    className={classes.code}
+                    margin="normal"
+                    fullWidth
                     id="code"
-                    fillWidth
                     name="code"
                     value={code}
-                    onChange={(e: any) => setCode(e.target.value)}
+                    onChange={(e: any) =>
+                      setCode(e.target.value.replace(/\D/g, "").substr(0, 6))
+                    }
+                    label="Код подтверждения"
                   />
                 </Grid>
-                <Grid item>
+                <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
                   <BccButton
-                    className={classes.btnCode}
+                    onClick={() => onSubmitOtp()}
                     variant="contained"
-                    color="primary"
-                    onClick={() => setStep(2)}
+                    fullWidth
+                    disabled={!isValid()}
                   >
                     Подтвердить
                   </BccButton>
                 </Grid>
+                {timer !== 0 ? (
+                  <Grid item>
+                    <BccTypography type="p3" className={classes.timer}>
+                      Отправить повторно СМС через 00:{timer}
+                    </BccTypography>
+                  </Grid>
+                ) : (
+                  <Grid item>
+                    <BccButton
+                      variant="text"
+                      className={classes.linkReSendSms}
+                      onClick={() => onReSend()}
+                    >
+                      Отправить повторно
+                    </BccButton>
+                  </Grid>
+                )}
               </Grid>
-              <BccTypography type="p2" block mb="80px">
-                Отправить повторно СМС через 00:59
-              </BccTypography>
             </div>
           ) : step === 2 ? (
             <div className={classes.block}>
@@ -817,13 +1086,36 @@ const Order = (props: any) => {
                   mb="26px"
                 >
                   👏 Поздравляем, Вам одобрена предварительная заявка на
-                  ипотечный займ на следующих условиях:{" "}
+                  ипотечный займ следующих условиях:
+                  <br /> Сумма: {+price - +pay} тенге
+                  <br />
+                  Срок: {period} месяцев
+                  <br />
+                  Ежемесячный платеж: _____
+                  <br />
+                  При этом уведомляем Вас, что условия выдачи займа по
+                  предварительному решению могут отличаться от условий
+                  установленных окончательным решением полномочного органа Банка
                 </BccTypography>
               </div>
             </div>
           ) : step === 3 ? (
             <div className={classes.block}>
-              <div className={classes.blockInner}></div>
+              <div className={classes.blockInner}>
+                <img src={process.env.PUBLIC_URL + "/img/res2.svg"} />
+                <BccTypography
+                  type="h6"
+                  color="#1F7042"
+                  block
+                  mt="26px"
+                  mb="26px"
+                >
+                  Уважаемый {secondName}! К сожалению,по предоставленным Вами
+                  данным, при предварительном рассмотрении ипотечного займа Вам
+                  отказано. Для окончательного решения рекомендуем пересмотреть
+                  параметры приобретаемой недвижимости и повторно подать заявку.
+                </BccTypography>
+              </div>
             </div>
           ) : (
             <div className={classes.block}>

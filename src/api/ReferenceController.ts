@@ -9,8 +9,8 @@ export interface CodeName {
 }
 
 export class ReferenceController {
-  async getIdentityTypes(): Promise<CodeName[]> {
-    return server.get(`/api/generic/Id`, {
+  async getCities(): Promise<any[]> {
+    return server.get(`/api/generic/financialinstitution`, {
       baseURL: webConfigEnv.REFERENCE_API,
     });
   }

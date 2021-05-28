@@ -7,7 +7,7 @@ export class CamundaController {
     return server.post(
       `/process/start`,
       {
-        processDefinitionKey: "growing_business",
+        processDefinitionKey: "mortgage",
         variables,
       },
       {
