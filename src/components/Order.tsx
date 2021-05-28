@@ -179,10 +179,6 @@ const BccMaskedInput = (props: TextMaskCustomProps) => {
 interface ProgramProps {
   title: string;
   code: string;
-  rate: string;
-  rate2?: string;
-  rate3?: string;
-  rate4?: string;
   spurcode: number;
 }
 
@@ -201,36 +197,26 @@ const programms: ProgramProps[] = [
   {
     title: "7-20-25 Скоринг",
     code: "0.201.1.1123",
-    rate: "7",
     spurcode: 139,
   },
   {
     title: "Ипотека Баспана-Хит",
     code: "0.201.1.1124",
-    rate: "10.5",
     spurcode: 112,
   },
   {
     title: "Ипотека Баспана-Хит ДДУ",
     code: "0.201.1.1129",
-    rate: "10.5",
     spurcode: 150,
   },
   {
     title: "Собственная ипотека",
     code: "0.201.1.1131",
-    rate: "15.5",
-    rate2: "12.99",
-    rate3: "11",
-    rate4: "15.4",
     spurcode: 112,
   },
   {
     title: "Собственная ипотека ДДУ",
     code: "0.201.1.1121",
-    rate: "15.5",
-    rate2: "12.99",
-    rate3: "15.4",
     spurcode: 139,
   },
 ];
@@ -284,7 +270,7 @@ const Order = (props: any) => {
   const [iinError, setIinError] = useState<boolean>(false);
   const [timer, setTimer] = useState(0);
   const [analys, setAnalys] = useState<boolean | -1>(-1);
-  const [rate, setRate] = useState("");
+  const [payRate, setPayRate] = useState<number | null>(null);
 
   React.useEffect(() => {
     let timeOut = setInterval(() => {
@@ -385,20 +371,27 @@ const Order = (props: any) => {
         return "10.5";
       } else if (program.code === "0.201.1.1129") {
         return "10.75";
-      } else if (program.code === "0.201.1.1131") {
-        if (+period <= 120) {
-          if (+pay >= +price * 0.7) {
-            return "11";
-          } else return "11";
-        } else if (+period <= 180) {
-          if (+pay >= +price * 0.3) {
-            return "12.99";
-          } else if (+pay >= +price * 0.5) {
-            return "15.5";
-          } else return "12.99";
+      } else if (
+        program.code === "0.201.1.1131" ||
+        program.code === "0.201.1.1121"
+      ) {
+        if (analys) {
+          if (+period <= 180) {
+            if (+pay >= +price * 0.5) return "15.4";
+          }
+        } else {
+          if (+period <= 120) {
+            if (+pay >= +price * 0.7) {
+              return "11";
+            }
+          } else if (+period <= 180) {
+            if (+pay >= +price * 0.5) {
+              return "12.99";
+            } else if (+pay >= +price * 0.3) {
+              return "15.5";
+            }
+          }
         }
-      } else if (program.code === "0.201.1.1121") {
-        return "10.5";
       }
     }
   };
@@ -411,6 +404,9 @@ const Order = (props: any) => {
         },
         client: {
           iin: iin.replace(/ /g, ""),
+          city: city,
+          spurcode: program !== -1 && program.spurcode,
+          fin_analys: analys === -1 ? "1" : (+!analys).toString(),
           name: secondName,
           surname: firstName,
           middle_name: thirdName,
@@ -448,6 +444,42 @@ const Order = (props: any) => {
       .catch((err) => console.error(err));
   }, []);
 
+  const countMinPay = (
+    pe: string,
+    pr: string,
+    an: boolean | -1,
+    prg?: ProgramProps | -1
+  ) => {
+    if (
+      (program !== -1 &&
+        (program.code === "0.201.1.1121" || program.code === "0.201.1.1131")) ||
+      (prg &&
+        prg !== -1 &&
+        (prg.code === "0.201.1.1121" || prg.code === "0.201.1.1131"))
+    ) {
+      if (an) {
+        if (+pe <= 180) {
+          setPayMin((+pr * 0.5).toString());
+          setPay((+pr * 0.5).toString());
+        }
+      } else {
+        if (+pe <= 120) {
+          setPayMin((+pr * 0.7).toString());
+          setPay((+pr * 0.7).toString());
+        } else if (+pe <= 180) {
+          setPayMin((+pr * 0.3).toString());
+          setPay((+pr * 0.3).toString());
+        } else {
+          setPayMin("3000000");
+          setPay("3000000");
+        }
+      }
+    } else {
+      setPayMin("3000000");
+      setPay("3000000");
+    }
+  };
+
   return (
     <div className={classes.outerContainer} ref={props.refProp}>
       <div className={classes.container}>
@@ -481,6 +513,7 @@ const Order = (props: any) => {
                     value={program}
                     onChange={(e: any) => {
                       if (e.target.value !== -1) {
+                        setProgram(e.target.value);
                         if (e.target.value.code === "0.201.1.1123") {
                           setAnalys(-1);
                           setPeriodMin("3");
@@ -523,8 +556,8 @@ const Order = (props: any) => {
                           e.target.value.code === "0.201.1.1131"
                         ) {
                           setAnalys(false);
+                          countMinPay(period, price, false, e.target.value);
                         }
-                        setProgram(e.target.value);
                       }
                     }}
                     variant="outlined"
@@ -558,8 +591,13 @@ const Order = (props: any) => {
                             /[^a-zA-Z0-9]/g,
                             ""
                           );
-                          if (s > 50000000) setPrice("50000000");
-                          else setPrice(s.toString());
+                          if (s > 50000000) {
+                            countMinPay(period, "50000000", analys);
+                            setPrice("50000000");
+                          } else {
+                            countMinPay(period, s.toString(), analys);
+                            setPrice(s.toString());
+                          }
                         }}
                         className={classes.input}
                       />
@@ -583,6 +621,7 @@ const Order = (props: any) => {
                             val instanceof Array
                               ? val[1].toString()
                               : val.toString();
+                          countMinPay(period, v, analys);
                           setPrice(v);
                         }}
                       />
@@ -608,7 +647,10 @@ const Order = (props: any) => {
                           value="analys"
                           color="primary"
                           checked={analys}
-                          onChange={() => setAnalys(!analys)}
+                          onChange={() => {
+                            countMinPay(period, price, !analys);
+                            setAnalys(!analys);
+                          }}
                         />
                       </Grid>
                       <Grid item>
@@ -662,8 +704,11 @@ const Order = (props: any) => {
                             /[^a-zA-Z0-9]/g,
                             ""
                           );
-                          if (s > 10000000) setPay("10000000");
-                          else setPay(s.toString());
+                          if (s > 10000000) {
+                            setPay("10000000");
+                          } else {
+                            setPay(s.toString());
+                          }
                         }}
                         className={classes.input}
                       />
@@ -682,13 +727,13 @@ const Order = (props: any) => {
                         value={+pay}
                         valueLabelDisplay="off"
                         defaultValue={+pay}
-                        onChange={(e: any, val: any) =>
-                          setPay(
+                        onChange={(e: any, val: any) => {
+                          let v =
                             val instanceof Array
                               ? val[1].toString()
-                              : val.toString()
-                          )
-                        }
+                              : val.toString();
+                          setPay(v);
+                        }}
                       />
                       <div className={classes.sliderRange}>
                         <span>
@@ -721,8 +766,13 @@ const Order = (props: any) => {
                             /[^a-zA-Z0-9]/g,
                             ""
                           );
-                          if (s > 300) setPeriod("300");
-                          else setPeriod(s.toString());
+                          if (s > 300) {
+                            countMinPay("300", price, analys);
+                            setPeriod("300");
+                          } else {
+                            countMinPay(s.toString(), price, analys);
+                            setPeriod(s.toString());
+                          }
                         }}
                         className={classes.input}
                       />
@@ -741,13 +791,14 @@ const Order = (props: any) => {
                         value={+period}
                         valueLabelDisplay="off"
                         defaultValue={+period}
-                        onChange={(e: any, val: any) =>
-                          setPeriod(
+                        onChange={(e: any, val: any) => {
+                          let v =
                             val instanceof Array
                               ? val[1].toString()
-                              : val.toString()
-                          )
-                        }
+                              : val.toString();
+                          countMinPay(v, price, analys);
+                          setPeriod(v);
+                        }}
                       />
                       <div className={classes.sliderRange}>
                         <span>{periodMin}</span>

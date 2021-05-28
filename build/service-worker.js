@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/mortgage/test/precache-manifest.a289b5e3fb60c08bd946de69bb03c66a.js"
+  "/mortgage/test/precache-manifest.57d95b0a0c016c6147e3fefb620e3d95.js"
 );
 
 self.addEventListener('message', (event) => {
