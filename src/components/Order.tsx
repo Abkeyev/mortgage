@@ -245,7 +245,7 @@ interface ResProps {
 
 const Order = (props: any) => {
   const classes = useStyles({});
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(0);
   const [price, setPrice] = useState("15000000");
   const [priceMin, setPriceMin] = useState("1000000");
   const [priceMax, setPriceMax] = useState("50000000");
