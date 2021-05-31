@@ -433,7 +433,7 @@ const Order = (props: any) => {
         },
       })
       .then((res: any) => {
-        res && setRes(res);
+        res && res.variables && setRes(res.variables);
         setStep(2);
         setLoading(false);
       })
