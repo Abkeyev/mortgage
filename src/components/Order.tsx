@@ -234,18 +234,25 @@ const BccMaskedIinInput = (props: TextMaskCustomProps) => {
   );
 };
 
-interface ResProps {}
+interface ResProps {
+  rejection: boolean;
+  fault: boolean;
+  success: boolean;
+  creditSum: string;
+  mPayment: string;
+  term: string;
+}
 
 const Order = (props: any) => {
   const classes = useStyles({});
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(2);
   const [price, setPrice] = useState("15000000");
   const [priceMin, setPriceMin] = useState("1000000");
   const [priceMax, setPriceMax] = useState("50000000");
   const [pay, setPay] = useState("3000000");
   const [payMin, setPayMin] = useState("3000000");
   const [payMax, setPayMax] = useState("10000000");
-  const [res, setRes] = useState();
+  const [res, setRes] = useState<ResProps | null>(null);
   const [income, setIncome] = useState("100000");
   const [program, setProgram] = useState<ProgramProps | -1>(-1);
   const [cities, setCities] = useState<BranchesProps[] | null>(null);
@@ -1156,52 +1163,76 @@ const Order = (props: any) => {
               </Grid>
             </div>
           ) : step === 2 ? (
-            <div className={classes.block}>
-              <div className={classes.blockInner}>
-                <img src={process.env.PUBLIC_URL + "/img/res1.svg"} />
-                <BccTypography
-                  type="h6"
-                  color="#1F7042"
-                  block
-                  mt="26px"
-                  mb="26px"
-                >
-                  👏 Поздравляем, Вам одобрена предварительная заявка на
-                  ипотечный займ следующих условиях:
-                  <br /> Сумма: {+price - +pay} тенге
-                  <br />
-                  Срок: {period} месяцев
-                  <br />
-                  Ежемесячный платеж: _____
-                  <br />
-                  При этом уведомляем Вас, что условия выдачи займа по
-                  предварительному решению могут отличаться от условий
-                  установленных окончательным решением полномочного органа Банка
-                </BccTypography>
+            res !== null && res.success ? (
+              <div className={classes.block}>
+                <div className={classes.blockInner}>
+                  <img src={process.env.PUBLIC_URL + "/img/res1.svg"} />
+                  <BccTypography
+                    type="h6"
+                    color="#1F7042"
+                    block
+                    mt="26px"
+                    mb="26px"
+                  >
+                    👏 Поздравляем, Вам одобрена предварительная заявка на
+                    ипотечный займ следующих условиях:
+                    <br />
+                    <br /> Сумма: {res.creditSum} тенге
+                    <br />
+                    Срок: {res.term} месяцев
+                    <br />
+                    Ежемесячный платеж: {res.mPayment}
+                    <br />
+                    <br />
+                    При этом уведомляем Вас, что условия выдачи займа по
+                    предварительному решению могут отличаться от условий
+                    установленных окончательным решением полномочного органа
+                    Банка
+                  </BccTypography>
+                </div>
               </div>
-            </div>
-          ) : step === 3 ? (
-            <div className={classes.block}>
-              <div className={classes.blockInner}>
-                <img src={process.env.PUBLIC_URL + "/img/res2.svg"} />
-                <BccTypography
-                  type="h6"
-                  color="#1F7042"
-                  block
-                  mt="26px"
-                  mb="26px"
-                >
-                  Уважаемый {secondName}! К сожалению,по предоставленным Вами
-                  данным, при предварительном рассмотрении ипотечного займа Вам
-                  отказано. Для окончательного решения рекомендуем пересмотреть
-                  параметры приобретаемой недвижимости и повторно подать заявку.
-                </BccTypography>
+            ) : res !== null && res.fault ? (
+              <div className={classes.block}>
+                <div className={classes.blockInner}>
+                  <img src={process.env.PUBLIC_URL + "/img/res2.svg"} />
+                  <BccTypography
+                    type="h6"
+                    color="#1F7042"
+                    block
+                    mt="26px"
+                    mb="26px"
+                  >
+                    Уважаемый {`${firstName} ${secondName} ${thirdName}`}!<br />
+                    К сожалению, по предоставленным Вами данным, при
+                    предварительном рассмотрении ипотечного займа Вам отказано.
+                    <br />
+                    Для окончательного решения рекомендуем пересмотреть
+                    параметры приобретаемой недвижимости и повторно подать
+                    заявку.
+                  </BccTypography>
+                </div>
               </div>
-            </div>
+            ) : res !== null && res.rejection ? (
+              <div className={classes.block}>
+                <div className={classes.blockInner}>
+                  <img src={process.env.PUBLIC_URL + "/img/res2.svg"} />
+                  <BccTypography
+                    type="h6"
+                    color="#1F7042"
+                    block
+                    mt="26px"
+                    mb="26px"
+                  >
+                    Не удолось расчитать попробуйте позже или обратитесь в
+                    отделение Банка
+                  </BccTypography>
+                </div>
+              </div>
+            ) : (
+              <></>
+            )
           ) : (
-            <div className={classes.block}>
-              <div className={classes.blockInner}></div>
-            </div>
+            <></>
           )}
         </BlockUi>
       </div>
