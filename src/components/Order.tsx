@@ -183,18 +183,18 @@ interface ProgramProps {
   spurcode: number;
 }
 
-interface CitiesProps {
+interface City {
   id: string;
   code: string;
   rusName: string;
 }
 
-interface BranchesProps {
+interface Branch {
   code: string;
-  markers: MarkersProps[];
+  markers: Marker[];
 }
 
-interface MarkersProps {
+interface Marker {
   depId: string;
   address: string;
 }
@@ -251,9 +251,9 @@ const Order = (props: any) => {
   const [payMax, setPayMax] = useState("10000000");
   const [income, setIncome] = useState("100000");
   const [program, setProgram] = useState<ProgramProps | -1>(-1);
-  const [cities, setCities] = useState<CitiesProps[] | null>(null);
-  const [cityCode, setCityCode] = useState("");
-  const [branches, setBranches] = useState<BranchesProps[] | null>(null);
+  const [cities, setCities] = useState<City[] | null>(null);
+  const [city, setCity] = useState({} as City);
+  const [branches, setBranches] = useState<Branch[] | null>(null);
   const [branchDepId, setBranchDepId] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [agree, setAgree] = useState(true);
@@ -300,7 +300,7 @@ const Order = (props: any) => {
       program !== -1 &&
       agree &&
       profession !== -1 &&
-      cityCode !== ""
+      city.code !== ""
     );
   };
 
@@ -408,7 +408,7 @@ const Order = (props: any) => {
         },
         client: {
           iin: iin.replace(/ /g, ""),
-          city: cityCode,
+          city: city.code,
           spurcode: program !== -1 && program.spurcode,
           fin_analys: analys === -1 ? "1" : (+!analys).toString(),
           name: secondName,
@@ -525,14 +525,14 @@ const Order = (props: any) => {
                           setPeriodMin("3");
                           setPeriodMax("300");
                           if (
-                            cityCode === "ALM" ||
-                            cityCode === "AST" ||
-                            cityCode === "AKT" ||
-                            cityCode === "ATR" ||
-                            cityCode === "SMK"
+                            city.code === "ALM" ||
+                            city.code === "AST" ||
+                            city.code === "AKT" ||
+                            city.code === "ATR" ||
+                            city.code === "SMK"
                           ) {
                             setPriceMax("25000000");
-                          } else if (cityCode === "KAR") {
+                          } else if (city.code === "KAR") {
                             setPriceMax("20000000");
                           } else {
                             setPriceMax("15000000");
@@ -544,15 +544,15 @@ const Order = (props: any) => {
                           setAnalys(-1);
                           setPeriodMin("3");
                           setPeriodMax("180");
-                          if (cityCode === "ALM" || cityCode === "AST") {
+                          if (city.code === "ALM" || city.code === "AST") {
                             setPriceMax("35000000");
                           } else if (
-                            cityCode === "AKT" ||
-                            cityCode === "ATR" ||
-                            cityCode === "SMK"
+                            city.code === "AKT" ||
+                            city.code === "ATR" ||
+                            city.code === "SMK"
                           ) {
                             setPriceMax("25000000");
-                          } else if (cityCode === "KAR") {
+                          } else if (city.code === "KAR") {
                             setPriceMax("20000000");
                           } else {
                             setPriceMax("15000000");
@@ -674,22 +674,26 @@ const Order = (props: any) => {
                     label="Местонахождение недвижимости"
                     id="code"
                     name="code"
-                    value={cityCode}
-                    onChange={(e: any) => setCityCode(e.target.value)}
+                    value={city.code}
+                    onChange={(e: any) => {
+                      const result =
+                        cities?.find((c) => c.code == e.target.value) ||
+                        ({} as City);
+                      setCity(result);
+                    }}
                     variant="outlined"
                     select
                   >
                     <MenuItem value={-1}>Выберите город</MenuItem>
-                    {cities &&
-                      cities.map((b: CitiesProps, index: number) => {
-                        return (
-                          b.code !== null && (
-                            <MenuItem key={index} value={b.code}>
-                              {b.rusName}
-                            </MenuItem>
-                          )
-                        );
-                      })}
+                    {cities?.map((b: City, index: number) => {
+                      return (
+                        b.code !== null && (
+                          <MenuItem key={index} value={b.code}>
+                            {b.rusName}
+                          </MenuItem>
+                        )
+                      );
+                    })}
                   </BccInput>
 
                   <BccInput
@@ -704,21 +708,13 @@ const Order = (props: any) => {
                     select
                   >
                     <MenuItem value={-1}>Выберите отделение</MenuItem>
-                    {cities
-                      ?.filter((c) => (c.code = cityCode))
-                      .map((c: CitiesProps) => {
-                        branches
-                          ?.filter((b) => (b.code = c.id))
-                          .map((b: BranchesProps, index: number) => {
-                            b.markers.map((m, i) => {
-                              return (
-                                <MenuItem key={index} value={m.address}>
-                                  {m.address}
-                                </MenuItem>
-                              );
-                            });
-                          });
-                      })}
+                    {branches
+                      ?.find((b) => b.code == city.id)
+                      ?.markers.map((m, i) => (
+                        <MenuItem key={i} value={m.depId}>
+                          {m.address}
+                        </MenuItem>
+                      ))}
                   </BccInput>
 
                   <div className={classes.paymentWrap}>
