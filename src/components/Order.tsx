@@ -7,13 +7,14 @@ import {
   BccLink,
   BccSlider,
   BccButton,
-  BccAlert,
 } from "./BccComponents";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import MaskedInput from "react-maskedinput";
 import BlockUi from "react-block-ui";
 import { Alert as MuiAlert } from "@material-ui/lab";
 import api from "../api/Api";
+import { history } from "../App";
+
 const webConfigEnv = (window as any).env;
 const Alert = (props: any) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -182,15 +183,20 @@ interface ProgramProps {
   spurcode: number;
 }
 
-interface MarkersProps {
-  name: string;
-  address: string;
-  depId: string;
+interface CitiesProps {
+  id: string;
+  code: string;
+  rusName: string;
 }
 
 interface BranchesProps {
-  code: any;
-  rusName: string;
+  code: string;
+  markers: MarkersProps[];
+}
+
+interface MarkersProps {
+  depId: string;
+  address: string;
 }
 
 const programms: ProgramProps[] = [
@@ -234,15 +240,6 @@ const BccMaskedIinInput = (props: TextMaskCustomProps) => {
   );
 };
 
-interface ResProps {
-  rejection: boolean;
-  fault: boolean;
-  success: boolean;
-  creditSum: string;
-  mPayment: string;
-  term: string;
-}
-
 const Order = (props: any) => {
   const classes = useStyles({});
   const [step, setStep] = useState(0);
@@ -252,11 +249,12 @@ const Order = (props: any) => {
   const [pay, setPay] = useState("3000000");
   const [payMin, setPayMin] = useState("3000000");
   const [payMax, setPayMax] = useState("10000000");
-  const [res, setRes] = useState<ResProps | null>(null);
   const [income, setIncome] = useState("100000");
   const [program, setProgram] = useState<ProgramProps | -1>(-1);
-  const [cities, setCities] = useState<BranchesProps[] | null>(null);
-  const [city, setCity] = useState<string | -1>(-1);
+  const [cities, setCities] = useState<CitiesProps[] | null>(null);
+  const [cityCode, setCityCode] = useState("");
+  const [branches, setBranches] = useState<BranchesProps[] | null>(null);
+  const [branchDepId, setBranchDepId] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [agree, setAgree] = useState(true);
   const [firstName, setFirstName] = useState("");
@@ -277,7 +275,6 @@ const Order = (props: any) => {
   const [iinError, setIinError] = useState<boolean>(false);
   const [timer, setTimer] = useState(0);
   const [analys, setAnalys] = useState<boolean | -1>(-1);
-  const [payRate, setPayRate] = useState<number | null>(null);
 
   React.useEffect(() => {
     let timeOut = setInterval(() => {
@@ -303,7 +300,7 @@ const Order = (props: any) => {
       program !== -1 &&
       agree &&
       profession !== -1 &&
-      city !== -1
+      cityCode !== ""
     );
   };
 
@@ -411,7 +408,7 @@ const Order = (props: any) => {
         },
         client: {
           iin: iin.replace(/ /g, ""),
-          city: city,
+          city: cityCode,
           spurcode: program !== -1 && program.spurcode,
           fin_analys: analys === -1 ? "1" : (+!analys).toString(),
           name: secondName,
@@ -433,14 +430,11 @@ const Order = (props: any) => {
         },
       })
       .then((res: any) => {
-        res && setRes(res);
-        setStep(2);
-        setLoading(false);
+        history.push(`loader/${res?.businessKey}`);
       })
       .catch((e: any) => {
         console.error(e);
         setOpenError(true);
-        setLoading(false);
       });
   };
 
@@ -448,6 +442,11 @@ const Order = (props: any) => {
     api.reference
       .getCities()
       .then((res) => setCities(res))
+      .catch((err) => console.error(err));
+
+    api.reference
+      .getCityBranches()
+      .then((res) => setBranches(res))
       .catch((err) => console.error(err));
   }, []);
 
@@ -526,14 +525,14 @@ const Order = (props: any) => {
                           setPeriodMin("3");
                           setPeriodMax("300");
                           if (
-                            city === "ALM" ||
-                            city === "AST" ||
-                            city === "AKT" ||
-                            city === "ATR" ||
-                            city === "SMK"
+                            cityCode === "ALM" ||
+                            cityCode === "AST" ||
+                            cityCode === "AKT" ||
+                            cityCode === "ATR" ||
+                            cityCode === "SMK"
                           ) {
                             setPriceMax("25000000");
-                          } else if (city === "KAR") {
+                          } else if (cityCode === "KAR") {
                             setPriceMax("20000000");
                           } else {
                             setPriceMax("15000000");
@@ -545,15 +544,15 @@ const Order = (props: any) => {
                           setAnalys(-1);
                           setPeriodMin("3");
                           setPeriodMax("180");
-                          if (city === "ALM" || city === "AST") {
+                          if (cityCode === "ALM" || cityCode === "AST") {
                             setPriceMax("35000000");
                           } else if (
-                            city === "AKT" ||
-                            city === "ATR" ||
-                            city === "SMK"
+                            cityCode === "AKT" ||
+                            cityCode === "ATR" ||
+                            cityCode === "SMK"
                           ) {
                             setPriceMax("25000000");
-                          } else if (city === "KAR") {
+                          } else if (cityCode === "KAR") {
                             setPriceMax("20000000");
                           } else {
                             setPriceMax("15000000");
@@ -673,16 +672,16 @@ const Order = (props: any) => {
                     fullWidth={true}
                     className={classes.inputStyle}
                     label="Местонахождение недвижимости"
-                    id="city"
-                    name="city"
-                    value={city}
-                    onChange={(e: any) => setCity(e.target.value)}
+                    id="code"
+                    name="code"
+                    value={cityCode}
+                    onChange={(e: any) => setCityCode(e.target.value)}
                     variant="outlined"
                     select
                   >
                     <MenuItem value={-1}>Выберите город</MenuItem>
                     {cities &&
-                      cities.map((b: BranchesProps, index: number) => {
+                      cities.map((b: CitiesProps, index: number) => {
                         return (
                           b.code !== null && (
                             <MenuItem key={index} value={b.code}>
@@ -690,6 +689,35 @@ const Order = (props: any) => {
                             </MenuItem>
                           )
                         );
+                      })}
+                  </BccInput>
+
+                  <BccInput
+                    fullWidth={true}
+                    className={classes.inputStyle}
+                    label="Отделение"
+                    id="depId"
+                    name="depid"
+                    value={branchDepId}
+                    onChange={(e: any) => setBranchDepId(e.target.value)}
+                    variant="outlined"
+                    select
+                  >
+                    <MenuItem value={-1}>Выберите отделение</MenuItem>
+                    {cities
+                      ?.filter((c) => (c.code = cityCode))
+                      .map((c: CitiesProps) => {
+                        branches
+                          ?.filter((b) => (b.code = c.id))
+                          .map((b: BranchesProps, index: number) => {
+                            b.markers.map((m, i) => {
+                              return (
+                                <MenuItem key={index} value={m.address}>
+                                  {m.address}
+                                </MenuItem>
+                              );
+                            });
+                          });
                       })}
                   </BccInput>
 
@@ -1162,77 +1190,8 @@ const Order = (props: any) => {
                 )}
               </Grid>
             </div>
-          ) : step === 2 ? (
-            res !== null && res.success ? (
-              <div className={classes.block}>
-                <div className={classes.blockInner}>
-                  <img src={process.env.PUBLIC_URL + "/img/res1.svg"} />
-                  <BccTypography
-                    type="h6"
-                    color="#1F7042"
-                    block
-                    mt="26px"
-                    mb="26px"
-                  >
-                    👏 Поздравляем, Вам одобрена предварительная заявка на
-                    ипотечный займ следующих условиях:
-                    <br />
-                    <br /> Сумма: {res.creditSum} тенге
-                    <br />
-                    Срок: {res.term} месяцев
-                    <br />
-                    Ежемесячный платеж: {res.mPayment}
-                    <br />
-                    <br />
-                    При этом уведомляем Вас, что условия выдачи займа по
-                    предварительному решению могут отличаться от условий
-                    установленных окончательным решением полномочного органа
-                    Банка
-                  </BccTypography>
-                </div>
-              </div>
-            ) : res !== null && res.fault ? (
-              <div className={classes.block}>
-                <div className={classes.blockInner}>
-                  <img src={process.env.PUBLIC_URL + "/img/res2.svg"} />
-                  <BccTypography
-                    type="h6"
-                    color="#1F7042"
-                    block
-                    mt="26px"
-                    mb="26px"
-                  >
-                    Уважаемый {`${firstName} ${secondName} ${thirdName}`}!<br />
-                    К сожалению, по предоставленным Вами данным, при
-                    предварительном рассмотрении ипотечного займа Вам отказано.
-                    <br />
-                    Для окончательного решения рекомендуем пересмотреть
-                    параметры приобретаемой недвижимости и повторно подать
-                    заявку.
-                  </BccTypography>
-                </div>
-              </div>
-            ) : res !== null && res.rejection ? (
-              <div className={classes.block}>
-                <div className={classes.blockInner}>
-                  <img src={process.env.PUBLIC_URL + "/img/res2.svg"} />
-                  <BccTypography
-                    type="h6"
-                    color="#1F7042"
-                    block
-                    mt="26px"
-                    mb="26px"
-                  >
-                    Не удолось расчитать попробуйте позже или обратитесь в
-                    отделение Банка
-                  </BccTypography>
-                </div>
-              </div>
-            ) : (
-              <></>
-            )
           ) : (
-            <></>
+            ""
           )}
         </BlockUi>
       </div>
