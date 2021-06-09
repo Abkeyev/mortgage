@@ -254,7 +254,7 @@ const Order = (props: any) => {
   const [cities, setCities] = useState<City[] | null>(null);
   const [city, setCity] = useState({} as City);
   const [branches, setBranches] = useState<Branch[] | null>(null);
-  const [branchDepId, setBranchDepId] = useState("");
+  const [branch, setBranch] = useState({} as Marker);
   const [isLoading, setLoading] = useState(false);
   const [agree, setAgree] = useState(true);
   const [firstName, setFirstName] = useState("");
@@ -409,6 +409,8 @@ const Order = (props: any) => {
         client: {
           iin: iin.replace(/ /g, ""),
           city: city.code,
+          id: city.id,
+          depId: branch.depId,
           spurcode: program !== -1 && program.spurcode,
           fin_analys: analys === -1 ? "1" : (+!analys).toString(),
           name: secondName,
@@ -702,8 +704,16 @@ const Order = (props: any) => {
                     label="Отделение"
                     id="depId"
                     name="depid"
-                    value={branchDepId}
-                    onChange={(e: any) => setBranchDepId(e.target.value)}
+                    value={branch}
+                    onChange={(e: any) => {
+                      const result =
+                        branches
+                          ?.find((b) => b.code == city.id)
+                          ?.markers?.find((m) => m.depId == e.target.value) ||
+                        ({} as Marker);
+
+                      setBranch(result);
+                    }}
                     variant="outlined"
                     select
                   >
