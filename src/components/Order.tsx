@@ -676,7 +676,49 @@ const Order = (props: any) => {
                     id="city"
                     name="city"
                     value={city}
-                    onChange={(e: any) => setCity(e.target.value)}
+                    onChange={(e: any) => {
+                      if (e.target.value.code === "0.201.1.1123") {
+                        if (
+                          e.target.value === "ALM" ||
+                          e.target.value === "AST" ||
+                          e.target.value === "AKT" ||
+                          e.target.value === "ATR" ||
+                          e.target.value === "SMK"
+                        ) {
+                          setPriceMax("25000000");
+                        } else if (e.target.value === "KAR") {
+                          setPriceMax("20000000");
+                        } else {
+                          setPriceMax("15000000");
+                        }
+                      } else if (
+                        e.target.value.code === "0.201.1.1124" ||
+                        e.target.value.code === "0.201.1.1129"
+                      ) {
+                        if (
+                          e.target.value === "ALM" ||
+                          e.target.value === "AST"
+                        ) {
+                          setPriceMax("35000000");
+                        } else if (
+                          e.target.value === "AKT" ||
+                          e.target.value === "ATR" ||
+                          e.target.value === "SMK"
+                        ) {
+                          setPriceMax("25000000");
+                        } else if (e.target.value === "KAR") {
+                          setPriceMax("20000000");
+                        } else {
+                          setPriceMax("15000000");
+                        }
+                      } else if (
+                        e.target.value.code === "0.201.1.1121" ||
+                        e.target.value.code === "0.201.1.1131"
+                      ) {
+                        countMinPay(period, price, false, e.target.value);
+                      }
+                      setCity(e.target.value);
+                    }}
                     variant="outlined"
                     select
                   >
