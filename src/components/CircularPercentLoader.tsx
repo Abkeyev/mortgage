@@ -7,18 +7,19 @@ import {
   makeStyles,
   createStyles,
   Grid,
+  TextField,
 } from "@material-ui/core";
 import api from "../api/Api";
 import { Task } from "../api/CamundaController";
 import { history } from "../App";
-// import { useSelector } from "react-redux";
-// import pm from "core/helpers/ProcessManager";
+import { BccTypography } from "./BccComponents";
 
 const useStylesCircularProgressWithLabel = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       position: "relative",
-      marginLeft: "auto",
+      left: 0,
+      top: 50,
     },
     bottomCircular: {
       color: theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
@@ -38,6 +39,14 @@ const useStylesCircularProgressWithLabel = makeStyles((theme: Theme) =>
       marginTop: 180,
       marginLeft: 190,
     },
+    textNotif: {
+      fontSize: 22,
+      color: "#219653",
+      position: "relative",
+      textAlign: "center",
+      left: 0,
+      top: 70,
+    },
   })
 );
 
@@ -45,7 +54,7 @@ function CircularProgressWithLabel(props: any) {
   const classes = useStylesCircularProgressWithLabel();
 
   return (
-    <Grid container justify="center">
+    <Grid container alignItems="center" justify="center">
       <Grid item>
         <Box className={classes.root}>
           <CircularProgress
@@ -66,6 +75,9 @@ function CircularProgressWithLabel(props: any) {
             props.value
           )}%`}</Typography>
         </Box>
+        <Typography className={classes.textNotif}>
+          Ожидайте, мы принимаем решения
+        </Typography>
       </Grid>
     </Grid>
   );

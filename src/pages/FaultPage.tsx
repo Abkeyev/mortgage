@@ -1,6 +1,8 @@
-import React from "react";
-import { BccTypography } from "../components/BccComponents";
+import React, { useState } from "react";
+import { BccButton, BccTypography } from "../components/BccComponents";
+import api from "../api/Api";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -107,8 +109,6 @@ const useStyles = makeStyles((theme: Theme) =>
       boxSizing: "border-box",
       backgroundColor: "white",
       padding: 48,
-      boxShadow:
-        "0px 10px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04)",
     },
     blockInner: {
       margin: "0 36px",
@@ -144,16 +144,34 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const FaultPage = (props: { businessKey: string }) => {
   const classes = useStyles({});
+  const history = useHistory();
 
   const { businessKey } = props;
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [middleName, setMiddlename] = useState("");
+
+  const handleClick = () => {
+    history.push("/");
+  };
+
+  api.camunda.getTaskBusinessKey(businessKey).then((task) => {
+    setName(task.variables.client.name);
+    setSurname(task.variables.client.surname);
+    setMiddlename(task.variables.client.middle_name);
+  });
 
   return (
     <div className={classes.block}>
       <div className={classes.blockInner}>
         <img src={process.env.PUBLIC_URL + "/img/res2.svg"} />
         <BccTypography type="h6" color="#1F7042" block mt="26px" mb="26px">
+          Уважаемый {`${name} ${surname} ${middleName}`}!<br />
           Не удолось расчитать попробуйте позже или обратитесь в отделение Банка
         </BccTypography>
+        <BccButton variant="contained" onClick={handleClick}>
+          Отправить повторно
+        </BccButton>
       </div>
     </div>
   );

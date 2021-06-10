@@ -409,7 +409,6 @@ const Order = (props: any) => {
         client: {
           iin: iin.replace(/ /g, ""),
           city: city.code,
-          id: city.id,
           depId: branch.depId,
           spurcode: program !== -1 && program.spurcode,
           fin_analys: analys === -1 ? "1" : (+!analys).toString(),
@@ -704,7 +703,7 @@ const Order = (props: any) => {
                     label="Отделение"
                     id="depId"
                     name="depid"
-                    value={branch}
+                    value={branch.address}
                     onChange={(e: any) => {
                       const result =
                         branches

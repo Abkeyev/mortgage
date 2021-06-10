@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { BccTypography } from "../components/BccComponents";
+import { BccButton, BccTypography } from "../components/BccComponents";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import api from "../api/Api";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -108,8 +109,6 @@ const useStyles = makeStyles((theme: Theme) =>
       boxSizing: "border-box",
       backgroundColor: "white",
       padding: 48,
-      boxShadow:
-        "0px 10px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04)",
     },
     blockInner: {
       margin: "0 36px",
@@ -145,14 +144,18 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const RejectPage = (props: { businessKey: string }) => {
   const classes = useStyles({});
+  const history = useHistory();
 
   const { businessKey } = props;
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [middleName, setMiddlename] = useState("");
 
+  const handleClick = () => {
+    history.push("/");
+  };
+
   api.camunda.getTaskBusinessKey(businessKey).then((task) => {
-    console.log("Task:", task.variables.client.name);
     setName(task.variables.client.name);
     setSurname(task.variables.client.surname);
     setMiddlename(task.variables.client.middle_name);
@@ -170,6 +173,9 @@ const RejectPage = (props: { businessKey: string }) => {
           Для окончательного решения рекомендуем пересмотреть параметры
           приобретаемой недвижимости и повторно подать заявку.
         </BccTypography>
+        <BccButton variant="contained" onClick={handleClick}>
+          Отправить повторно
+        </BccButton>
       </div>
     </div>
   );
