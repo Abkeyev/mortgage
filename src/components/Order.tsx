@@ -258,7 +258,6 @@ const Order = (props: any) => {
   const [cities, setCities] = useState<BranchesProps[] | null>(null);
   const [city, setCity] = useState<string | -1>(-1);
   const [isLoading, setLoading] = useState(false);
-  const [agree, setAgree] = useState(true);
   const [firstName, setFirstName] = useState("");
   const [secondName, setSecondName] = useState("");
   const [thirdName, setThirdName] = useState("");
@@ -274,6 +273,7 @@ const Order = (props: any) => {
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState<boolean>(false);
   const [openError, setOpenError] = useState(false);
+  const [agree, setAgree] = useState(false);
   const [iinError, setIinError] = useState<boolean>(false);
   const [timer, setTimer] = useState(0);
   const [analys, setAnalys] = useState<boolean | -1>(-1);
@@ -677,7 +677,7 @@ const Order = (props: any) => {
                     name="city"
                     value={city}
                     onChange={(e: any) => {
-                      if (e.target.value.code === "0.201.1.1123") {
+                      if (program !== -1 && program.code === "0.201.1.1123") {
                         if (
                           e.target.value === "ALM" ||
                           e.target.value === "AST" ||
@@ -692,8 +692,8 @@ const Order = (props: any) => {
                           setPriceMax("15000000");
                         }
                       } else if (
-                        e.target.value.code === "0.201.1.1124" ||
-                        e.target.value.code === "0.201.1.1129"
+                        (program !== -1 && program.code === "0.201.1.1124") ||
+                        (program !== -1 && program.code === "0.201.1.1129")
                       ) {
                         if (
                           e.target.value === "ALM" ||
@@ -712,10 +712,10 @@ const Order = (props: any) => {
                           setPriceMax("15000000");
                         }
                       } else if (
-                        e.target.value.code === "0.201.1.1121" ||
-                        e.target.value.code === "0.201.1.1131"
+                        (program !== -1 && program.code === "0.201.1.1121") ||
+                        (program !== -1 && program.code === "0.201.1.1131")
                       ) {
-                        countMinPay(period, price, false, e.target.value);
+                        countMinPay(period, price, false, program);
                       }
                       setCity(e.target.value);
                     }}
@@ -1120,14 +1120,17 @@ const Order = (props: any) => {
                   <BccCheckbox
                     value="remember"
                     color="primary"
+                    onClick={() => setAgree(!agree)}
                     checked={agree}
-                    onChange={() => setAgree(!agree)}
                   />
                 </Grid>
                 <Grid item>
                   <BccTypography type="p3" ml="10px">
                     Я согласен(а) с{" "}
-                    <BccLink href="https://www.bcc.kz/" target="_blank">
+                    <BccLink
+                      href={process.env.PUBLIC_URL + "/anketa.pdf"}
+                      target="_blank"
+                    >
                       условиями
                     </BccLink>
                   </BccTypography>
