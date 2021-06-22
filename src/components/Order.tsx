@@ -200,11 +200,6 @@ const programms: ProgramProps[] = [
     spurcode: 139,
   },
   {
-    title: "Ипотека Баспана-Хит",
-    code: "0.201.1.1124",
-    spurcode: 112,
-  },
-  {
     title: "Ипотека Баспана-Хит ДДУ",
     code: "0.201.1.1129",
     spurcode: 150,
@@ -374,8 +369,6 @@ const Order = (props: any) => {
     if (program !== -1) {
       if (program.code === "0.201.1.1123") {
         return "7";
-      } else if (program.code === "0.201.1.1124") {
-        return "10.5";
       } else if (program.code === "0.201.1.1129") {
         return "10.75";
       } else if (
@@ -538,10 +531,7 @@ const Order = (props: any) => {
                           } else {
                             setPriceMax("15000000");
                           }
-                        } else if (
-                          e.target.value.code === "0.201.1.1124" ||
-                          e.target.value.code === "0.201.1.1129"
-                        ) {
+                        } else if (e.target.value.code === "0.201.1.1129") {
                           setAnalys(-1);
                           setPeriodMin("3");
                           setPeriodMax("180");
@@ -692,8 +682,8 @@ const Order = (props: any) => {
                           setPriceMax("15000000");
                         }
                       } else if (
-                        (program !== -1 && program.code === "0.201.1.1124") ||
-                        (program !== -1 && program.code === "0.201.1.1129")
+                        program !== -1 &&
+                        program.code === "0.201.1.1129"
                       ) {
                         if (
                           e.target.value === "ALM" ||
