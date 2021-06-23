@@ -76,7 +76,7 @@ function CircularProgressWithLabel(props: any) {
           )}%`}</Typography>
         </Box>
         <Typography className={classes.textNotif}>
-          Ожидайте, мы принимаем решения
+          Ожидайте, мы принимаем решение
         </Typography>
       </Grid>
     </Grid>

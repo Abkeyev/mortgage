@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { BccTypography } from "../components/BccComponents";
+import { BccButton, BccTypography } from "../components/BccComponents";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import api from "../api/Api";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -108,8 +109,6 @@ const useStyles = makeStyles((theme: Theme) =>
       boxSizing: "border-box",
       backgroundColor: "white",
       padding: 48,
-      boxShadow:
-        "0px 10px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04)",
     },
     blockInner: {
       margin: "0 36px",
@@ -145,11 +144,16 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SuccessPage = (props: { businessKey: string }) => {
   const classes = useStyles({});
+  const history = useHistory();
 
   const { businessKey } = props;
   const [creditSum, setCreditSum] = useState("");
   const [term, setTerm] = useState("");
   const [mPayment, setPayment] = useState("");
+
+  const handleClick = () => {
+    history.push("/");
+  };
 
   api.camunda.getTaskBusinessKey(businessKey).then((task) => {
     setCreditSum(task.variables.creditSum);
@@ -167,15 +171,18 @@ const SuccessPage = (props: { businessKey: string }) => {
           <br />
           <br /> Сумма: {creditSum} тенге
           <br />
-          Срок: {term} месяцев
+          Срок: {term} мес.
           <br />
-          Ежемесячный платеж: {mPayment}
+          Ежемесячный платеж: {mPayment} тенге
           <br />
           <br />
           При этом уведомляем Вас, что условия выдачи займа по предварительному
           решению могут отличаться от условий установленных окончательным
           решением полномочного органа Банка
         </BccTypography>
+        <BccButton variant="contained" onClick={handleClick}>
+          Отправить повторно
+        </BccButton>
       </div>
     </div>
   );

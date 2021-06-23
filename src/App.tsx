@@ -32,8 +32,8 @@ const App = () => {
           path="/loader/:businessKey"
           component={(props: any) => (
             <CircularPercentLoader
-              frequency={3000}
-              frequencyCheckStatus={10000}
+              frequency={6000}
+              frequencyCheckStatus={15000}
               businesskey={props.match.params.businessKey}
             />
           )}

@@ -206,11 +206,6 @@ const programms: ProgramProps[] = [
     spurcode: 139,
   },
   {
-    title: "Ипотека Баспана-Хит",
-    code: "0.201.1.1124",
-    spurcode: 112,
-  },
-  {
     title: "Ипотека Баспана-Хит ДДУ",
     code: "0.201.1.1129",
     spurcode: 150,
@@ -371,8 +366,6 @@ const Order = (props: any) => {
     if (program !== -1) {
       if (program.code === "0.201.1.1123") {
         return "7";
-      } else if (program.code === "0.201.1.1124") {
-        return "10.5";
       } else if (program.code === "0.201.1.1129") {
         return "10.75";
       } else if (
@@ -538,10 +531,6 @@ const Order = (props: any) => {
                           } else {
                             setPriceMax("15000000");
                           }
-                        } else if (
-                          e.target.value.code === "0.201.1.1124" ||
-                          e.target.value.code === "0.201.1.1129"
-                        ) {
                           setAnalys(-1);
                           setPeriodMin("3");
                           setPeriodMax("180");
@@ -680,6 +669,45 @@ const Order = (props: any) => {
                       const result =
                         cities?.find((c) => c.code == e.target.value) ||
                         ({} as City);
+
+                      if (program !== -1 && program.code === "0.201.1.1123") {
+                        if (
+                          result.code === "ALM" ||
+                          result.code === "AST" ||
+                          result.code === "AKT" ||
+                          result.code === "ATR" ||
+                          result.code === "SMK"
+                        ) {
+                          setPriceMax("25000000");
+                        } else if (result.code === "KAR") {
+                          setPriceMax("20000000");
+                        } else {
+                          setPriceMax("15000000");
+                        }
+                      } else if (
+                        program !== -1 &&
+                        program.code === "0.201.1.1129"
+                      ) {
+                        if (result.code === "ALM" || result.code === "AST") {
+                          setPriceMax("35000000");
+                        } else if (
+                          result.code === "AKT" ||
+                          result.code === "ATR" ||
+                          result.code === "SMK"
+                        ) {
+                          setPriceMax("25000000");
+                        } else if (result.code === "KAR") {
+                          setPriceMax("20000000");
+                        } else {
+                          setPriceMax("15000000");
+                        }
+                      } else if (
+                        (program !== -1 && program.code === "0.201.1.1121") ||
+                        (program !== -1 && program.code === "0.201.1.1131")
+                      ) {
+                        countMinPay(period, price, false, program);
+                      }
+
                       setCity(result);
                     }}
                     variant="outlined"
