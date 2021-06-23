@@ -251,7 +251,7 @@ const Order = (props: any) => {
   const [branches, setBranches] = useState<Branch[] | null>(null);
   const [branch, setBranch] = useState({} as Marker);
   const [isLoading, setLoading] = useState(false);
-  const [agree, setAgree] = useState(true);
+  const [agree, setAgree] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [secondName, setSecondName] = useState("");
   const [thirdName, setThirdName] = useState("");
@@ -685,8 +685,8 @@ const Order = (props: any) => {
                           setPriceMax("15000000");
                         }
                       } else if (
-                        program !== -1 &&
-                        program.code === "0.201.1.1129"
+                        (program !== -1 && program.code === "0.201.1.1124") ||
+                        (program !== -1 && program.code === "0.201.1.1129")
                       ) {
                         if (result.code === "ALM" || result.code === "AST") {
                           setPriceMax("35000000");
@@ -1140,13 +1140,16 @@ const Order = (props: any) => {
                     value="remember"
                     color="primary"
                     checked={agree}
-                    onChange={() => setAgree(!agree)}
+                    onClick={() => setAgree(!agree)}
                   />
                 </Grid>
                 <Grid item>
                   <BccTypography type="p3" ml="10px">
                     Я согласен(а) с{" "}
-                    <BccLink href="https://www.bcc.kz/" target="_blank">
+                    <BccLink
+                      href={process.env.PUBLIC_URL + "/anketa.pdf"}
+                      target="_blank"
+                    >
                       условиями
                     </BccLink>
                   </BccTypography>
