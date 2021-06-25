@@ -341,7 +341,7 @@ execution.setVariable("counter", 60);</bpmn:script>
       <bpmn:outgoing>SequenceFlow_1ttgt22</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0i478eq</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1a44y3v" name="да" sourceRef="ExclusiveGateway_0j1zd1h" targetRef="Task_0af1e9a">
+    <bpmn:sequenceFlow id="SequenceFlow_1a44y3v" name="да" sourceRef="ExclusiveGateway_0j1zd1h" targetRef="IntermediateCatchEvent_1j637b8">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${getSecondCall.data.rscrlst[0].DECISION_CODE != 'rework' &amp;&amp; getSecondCall.data.rscrlst[0].DECISION_CODE != 'error' &amp;&amp; getSecondCall.data.rscrlst[0].DECISION_CODE != 'reject' &amp;&amp; getSecondCall.data.rscrlst[0].DECISION_CODE != 'decline' &amp;&amp; (counter &gt; 0 &amp;&amp; getSecondCall.data.rscrlst[0].DECISION_CODE != 'wait')}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Task_0af1e9a" name="Ответ скоринга&#10;(xml to json)" camunda:modelerTemplate="com.bcc.camunda.ConsumeHttpRest" camunda:delegateExpression="${consumeHttpRestDelegate}">
@@ -356,7 +356,7 @@ execution.setVariable("counter", 60);</bpmn:script>
           <camunda:outputParameter name="jsonResult">${result}</camunda:outputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_1a44y3v</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1518n2m</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_15ayell</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_0n24azu" name="нет" sourceRef="ExclusiveGateway_1gyyymn" targetRef="Task_0zzy32m">
@@ -498,7 +498,6 @@ execution.setVariable("error", error);</bpmn:script>
       <bpmn:incoming>SequenceFlow_1553r7m</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1txmfu2</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1yaa6s1</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_08ryesp</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1nj54d3</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0i478eq</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_17psfmz</bpmn:incoming>
@@ -512,7 +511,7 @@ execution.setVariable("fault", fault);</bpmn:script>
       <bpmn:incoming>SequenceFlow_0kd34cc</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0kd34cc" sourceRef="ScriptTask_1iabzgi" targetRef="EndEvent_01z51dn" />
-    <bpmn:sequenceFlow id="SequenceFlow_08ryesp" sourceRef="IntermediateThrowEvent_0258ytr" targetRef="ScriptTask_1iabzgi" />
+    <bpmn:sequenceFlow id="SequenceFlow_08ryesp" sourceRef="IntermediateThrowEvent_0258ytr" targetRef="Task_0judkpm" />
     <bpmn:sequenceFlow id="SequenceFlow_1nj54d3" sourceRef="IntermediateThrowEvent_0ve2krl" targetRef="ScriptTask_1iabzgi" />
     <bpmn:sequenceFlow id="SequenceFlow_0i478eq" name="Нет" sourceRef="ExclusiveGateway_0j1zd1h" targetRef="ScriptTask_1iabzgi">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${getSecondCall.data.rscrlst[0].DECISION_CODE == 'rework' || getSecondCall.data.rscrlst[0].DECISION_CODE == 'error' || (counter == 0 &amp;&amp; getSecondCall.data.rscrlst[0].DECISION_CODE == 'wait')}</bpmn:conditionExpression>
@@ -607,6 +606,22 @@ execution.setVariable("term", term);
 execution.setVariable("term", term);</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="SequenceFlow_1nw390h" sourceRef="ScriptTask_00ciz2q" targetRef="Task_1j3p8x9" />
+    <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_1j637b8" name="Timer 2">
+      <bpmn:incoming>SequenceFlow_1a44y3v</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1518n2m</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_02ev6vy">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1518n2m" sourceRef="IntermediateCatchEvent_1j637b8" targetRef="Task_0af1e9a" />
+    <bpmn:scriptTask id="Task_0judkpm" name="Ошибка" scriptFormat="Groovy">
+      <bpmn:incoming>SequenceFlow_08ryesp</bpmn:incoming>
+      <bpmn:script>def errorMsg = "";
+
+execution.setVariable("errorMsg", "Оишбка при создание заявки в КФО");
+
+</bpmn:script>
+    </bpmn:scriptTask>
   </bpmn:process>
   <bpmn:signal id="Signal_00dj4wi" name="u_l-finish-scoring-${execution.processBusinessKey}" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -861,13 +876,13 @@ execution.setVariable("term", term);</bpmn:script>
         <di:waypoint x="5220" y="765" />
         <di:waypoint x="5220" y="668" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="5230" y="707" width="12" height="14" />
+          <dc:Bounds x="5230" y="707" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="IntermediateCatchEvent_15dptfu_di" bpmnElement="IntermediateThrowEvent_1jcgslz">
         <dc:Bounds x="5202" y="632" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="5203" y="602" width="36" height="14" />
+          <dc:Bounds x="5202" y="602" width="38" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0wpotvs_di" bpmnElement="SequenceFlow_0wpotvs">
@@ -887,9 +902,9 @@ execution.setVariable("term", term);</bpmn:script>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1a44y3v_di" bpmnElement="SequenceFlow_1a44y3v">
         <di:waypoint x="5425" y="790" />
-        <di:waypoint x="5550" y="790" />
+        <di:waypoint x="5472" y="790" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="5452" y="772" width="12" height="14" />
+          <dc:Bounds x="5443" y="772" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_0cr9bsj_di" bpmnElement="Task_0af1e9a">
@@ -989,8 +1004,9 @@ execution.setVariable("term", term);</bpmn:script>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_08ryesp_di" bpmnElement="SequenceFlow_08ryesp">
         <di:waypoint x="1380" y="848" />
-        <di:waypoint x="1380" y="1460" />
-        <di:waypoint x="3310" y="1460" />
+        <di:waypoint x="1380" y="950" />
+        <di:waypoint x="1170" y="950" />
+        <di:waypoint x="1170" y="1200" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1nj54d3_di" bpmnElement="SequenceFlow_1nj54d3">
         <di:waypoint x="4260" y="848" />
@@ -1034,6 +1050,19 @@ execution.setVariable("term", term);</bpmn:script>
         <di:waypoint x="400" y="790" />
         <di:waypoint x="480" y="790" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_1j637b8_di" bpmnElement="IntermediateCatchEvent_1j637b8">
+        <dc:Bounds x="5472" y="772" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="5472" y="742" width="38" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1518n2m_di" bpmnElement="SequenceFlow_1518n2m">
+        <di:waypoint x="5508" y="790" />
+        <di:waypoint x="5550" y="790" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ScriptTask_0pix7h7_di" bpmnElement="Task_0judkpm">
+        <dc:Bounds x="1120" y="1200" width="100" height="80" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

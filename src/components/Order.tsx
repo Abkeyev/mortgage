@@ -587,9 +587,9 @@ const Order = (props: any) => {
                             /[^a-zA-Z0-9]/g,
                             ""
                           );
-                          if (s > 50000000) {
-                            countMinPay(period, "50000000", analys);
-                            setPrice("50000000");
+                          if (s > +priceMax) {
+                            countMinPay(period, priceMax, analys);
+                            setPrice(priceMax);
                           } else {
                             countMinPay(period, s.toString(), analys);
                             setPrice(s.toString());
@@ -685,8 +685,8 @@ const Order = (props: any) => {
                           setPriceMax("15000000");
                         }
                       } else if (
-                        (program !== -1 && program.code === "0.201.1.1124") ||
-                        (program !== -1 && program.code === "0.201.1.1129")
+                        program !== -1 &&
+                        program.code === "0.201.1.1129"
                       ) {
                         if (result.code === "ALM" || result.code === "AST") {
                           setPriceMax("35000000");
@@ -772,8 +772,8 @@ const Order = (props: any) => {
                             /[^a-zA-Z0-9]/g,
                             ""
                           );
-                          if (s > 10000000) {
-                            setPay("10000000");
+                          if (s > +payMax) {
+                            setPay(payMax);
                           } else {
                             setPay(s.toString());
                           }
@@ -834,9 +834,9 @@ const Order = (props: any) => {
                             /[^a-zA-Z0-9]/g,
                             ""
                           );
-                          if (s > 300) {
-                            countMinPay("300", price, analys);
-                            setPeriod("300");
+                          if (s > +periodMax) {
+                            countMinPay(periodMax, price, analys);
+                            setPeriod(periodMax);
                           } else {
                             countMinPay(s.toString(), price, analys);
                             setPeriod(s.toString());
