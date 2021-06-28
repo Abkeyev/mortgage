@@ -86,12 +86,11 @@ function CircularProgressWithLabel(props: any) {
 const CircularPercentLoader = (props: {
   frequency: number;
   frequencyCheckStatus: number;
-  businesskey: string;
+  processInstanceId: string;
 }) => {
-  const { frequency, frequencyCheckStatus, businesskey } = props;
+  const { frequency, frequencyCheckStatus, processInstanceId } = props;
   const [progress, setProgress] = useState(0);
   const [frequencyState, setFrequencyState] = useState(frequency);
-  const bKey = businesskey;
 
   const timerAnimationCallback = (task: Task) => {
     setProgress((prevProgress) => {
@@ -102,7 +101,7 @@ const CircularPercentLoader = (props: {
           return prevProgress + 1 < 100 ? prevProgress + 1 : prevProgress;
         } else {
           if (prevProgress + 1 == 100) {
-            history.push(`/${task.definitionKey}/${task.businessKey}`);
+            history.push(`/${task.definitionKey}/${task.processInstanceId}`);
           }
           return prevProgress >= 100 ? 1 : prevProgress + 1;
         }
@@ -114,7 +113,7 @@ const CircularPercentLoader = (props: {
     let timer = setInterval(() => timerAnimationCallback({}), frequencyState);
 
     const timerCheckStatus = setInterval(() => {
-      api.camunda.getTaskBusinessKey(bKey).then((task) => {
+      api.camunda.getTaskProcessInstanceId(processInstanceId).then((task) => {
         if (!!task) {
           if (task.definitionKey != "loader") {
             setFrequencyState(50);

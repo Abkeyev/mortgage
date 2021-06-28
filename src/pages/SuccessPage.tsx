@@ -142,11 +142,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const SuccessPage = (props: { businessKey: string }) => {
+const SuccessPage = (props: { processInstanceId: string }) => {
   const classes = useStyles({});
   const history = useHistory();
 
-  const { businessKey } = props;
+  const { processInstanceId } = props;
   const [creditSum, setCreditSum] = useState("");
   const [term, setTerm] = useState("");
   const [mPayment, setPayment] = useState("");
@@ -155,7 +155,7 @@ const SuccessPage = (props: { businessKey: string }) => {
     history.push("/");
   };
 
-  api.camunda.getTaskBusinessKey(businessKey).then((task) => {
+  api.camunda.getTaskProcessInstanceId(processInstanceId).then((task) => {
     setCreditSum(task.variables.creditSum);
     setTerm(task.variables.term);
     setPayment(task.variables.mPayment);

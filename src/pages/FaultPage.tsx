@@ -142,11 +142,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const FaultPage = (props: { businessKey: string }) => {
+const FaultPage = (props: { processInstanceId: string }) => {
   const classes = useStyles({});
   const history = useHistory();
 
-  const { businessKey } = props;
+  const { processInstanceId } = props;
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [middleName, setMiddlename] = useState("");
@@ -155,7 +155,8 @@ const FaultPage = (props: { businessKey: string }) => {
     history.push("/");
   };
 
-  api.camunda.getTaskBusinessKey(businessKey).then((task) => {
+  api.camunda.getTaskProcessInstanceId(processInstanceId).then((task) => {
+    console.log("TASK: ", task);
     setName(task.variables.client.name);
     setSurname(task.variables.client.surname);
     setMiddlename(task.variables.client.middle_name);

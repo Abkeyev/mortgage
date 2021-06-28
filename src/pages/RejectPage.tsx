@@ -142,11 +142,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const RejectPage = (props: { businessKey: string }) => {
+const RejectPage = (props: { processInstanceId: string }) => {
   const classes = useStyles({});
   const history = useHistory();
 
-  const { businessKey } = props;
+  const { processInstanceId } = props;
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [middleName, setMiddlename] = useState("");
@@ -155,7 +155,7 @@ const RejectPage = (props: { businessKey: string }) => {
     history.push("/");
   };
 
-  api.camunda.getTaskBusinessKey(businessKey).then((task) => {
+  api.camunda.getTaskProcessInstanceId(processInstanceId).then((task) => {
     setName(task.variables.client.name);
     setSurname(task.variables.client.surname);
     setMiddlename(task.variables.client.middle_name);

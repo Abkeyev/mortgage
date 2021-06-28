@@ -11,30 +11,36 @@ const App = () => {
     <Router history={history}>
       <Switch>
         <Route
-          path="/success/:businessKey"
+          path="/success/:processInstanceId"
           component={(props: any) => (
-            <SuccessPage businessKey={props.match.params.businessKey} />
+            <SuccessPage
+              processInstanceId={props.match.params.processInstanceId}
+            />
           )}
         />
         <Route
-          path="/reject/:businessKey"
+          path="/reject/:processInstanceId"
           component={(props: any) => (
-            <RejectPage businessKey={props.match.params.businessKey} />
+            <RejectPage
+              processInstanceId={props.match.params.processInstanceId}
+            />
           )}
         />
         <Route
-          path="/fault/:businessKey"
+          path="/fault/:processInstanceId"
           component={(props: any) => (
-            <FaultPage businessKey={props.match.params.businessKey} />
+            <FaultPage
+              processInstanceId={props.match.params.processInstanceId}
+            />
           )}
         />
         <Route
-          path="/loader/:businessKey"
+          path="/loader/:processInstanceId"
           component={(props: any) => (
             <CircularPercentLoader
               frequency={6000}
               frequencyCheckStatus={15000}
-              businesskey={props.match.params.businessKey}
+              processInstanceId={props.match.params.processInstanceId}
             />
           )}
         />

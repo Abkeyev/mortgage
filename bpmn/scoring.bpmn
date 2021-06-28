@@ -463,7 +463,7 @@ execution.setVariable("clientCode", clientCode);</bpmn:script>
     <bpmn:scriptTask id="Task_00e5oe8" name="Отказ" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_0pvvarp</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0htqjdq</bpmn:outgoing>
-      <bpmn:script>execution.setVariable("reject", true);</bpmn:script>
+      <bpmn:script>execution.setVariable("status","reject");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:boundaryEvent id="BoundaryEvent_18w7wbq" attachedToRef="Task_0af1e9a">
       <bpmn:outgoing>SequenceFlow_1yaa6s1</bpmn:outgoing>
@@ -479,7 +479,7 @@ execution.setVariable("clientCode", clientCode);</bpmn:script>
       <bpmn:incoming>SequenceFlow_1uppqsn</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1eihaoz</bpmn:outgoing>
       <bpmn:script>execution.setVariable("errMsg", "Ошибка при удалении заявки из КФО");
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="EndEvent_01z51dn">
       <bpmn:incoming>SequenceFlow_1ciryij</bpmn:incoming>
@@ -554,7 +554,7 @@ execution.setVariable("requestKFO", requestKFO);</bpmn:script>
       <bpmn:script>var jsonResult = execution.getVariable("jsonResult");
 var secondCall = jsonResult.DAJSONDocument.Results.Second_Call;
 
-execution.setVariable("success", true);
+execution.setVariable("status","success");
 execution.setVariable("creditSum",secondCall.credit_sum.value);
 execution.setVariable("mPayment",secondCall.Monthly_payment.value);
 execution.setVariable("term",secondCall.Term.value);</bpmn:script>
@@ -565,19 +565,17 @@ execution.setVariable("term",secondCall.Term.value);</bpmn:script>
     <bpmn:scriptTask id="ScriptTask_00ciz2q" name="Формиреум ответ" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_12715d8</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1nw390h</bpmn:outgoing>
-      <bpmn:script>def reject = false;
-def fault = false;
-def success = false;
+      <bpmn:script>def status = "";
+def errMsg = "";
 def creditSum = "";
 def mPayment = "";
 def term = "";
-def errMsg = "";
 
-execution.setVariable("reject", reject);
-execution.setVariable("fault", fault);
-execution.setVariable("success", success);
+
+execution.setVariable("status", status);
+execution.setVariable("errMsg", errMsg);
 execution.setVariable("creditSum", creditSum);
-execution.setVariable("term", term);
+execution.setVariable("mPayment", mPayment);
 execution.setVariable("term", term);</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="SequenceFlow_1nw390h" sourceRef="ScriptTask_00ciz2q" targetRef="Task_1j3p8x9" />
@@ -593,7 +591,7 @@ execution.setVariable("term", term);</bpmn:script>
       <bpmn:incoming>SequenceFlow_08ryesp</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1ciryij</bpmn:outgoing>
       <bpmn:script>execution.setVariable("errMsg","Ошибка при создании заявки в КФО на СПР");
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_0gap7nl" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_16c8jm2</bpmn:incoming>
@@ -602,13 +600,13 @@ execution.setVariable("fault", true);</bpmn:script>
 def result = execution.getVariable("createRequestResult");
 
 execution.setVariable("errMsg",text + result.data.smsgtext);
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_0sd95n7" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_0pyxlbx</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_08mv77j</bpmn:outgoing>
       <bpmn:script>execution.setVariable("errMsg","Ошибка при сохранении согласия клиента в ПКБ");
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_0x4h4ux" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_16jx7i5</bpmn:incoming>
@@ -617,13 +615,13 @@ execution.setVariable("fault", true);</bpmn:script>
 def result = execution.getVariable("savePkbAgreement");
 
 execution.setVariable("errMsg",text + result.data.smsgtext);
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_1d1j0wa" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_0i6vwec</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1kf0kh4</bpmn:outgoing>
       <bpmn:script>execution.setVariable("errMsg","Ошибка при вызове CALL1");
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_1qjenf8" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_0vqpcnn</bpmn:incoming>
@@ -632,13 +630,13 @@ execution.setVariable("fault", true);</bpmn:script>
 def result = execution.getVariable("executeFirstCall");
 
 execution.setVariable("errMsg",text + result.data.smsgtext);
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_1vufdgs" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_17psfmz</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1lq6yjw</bpmn:outgoing>
       <bpmn:script>execution.setVariable("errMsg","Ошибка при вызове ответ CALL1");
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_1sfvbro" name="Ошибка" scriptFormat="JavaScript">
       <bpmn:incoming>SequenceFlow_0u33e0u</bpmn:incoming>
@@ -646,14 +644,13 @@ execution.setVariable("fault", true);</bpmn:script>
       <bpmn:script>var code = execution.getVariable("getFirstCall")
 
 execution.setVariable("errMsg","Ошибка CALL1, DECISION_CODE:" + code.data.rscrlst[0].DECISION_CODE);
-execution.setVariable("fault", true);
-</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_1wihhhl" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_1nj54d3</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0dgn3io</bpmn:outgoing>
       <bpmn:script>execution.setVariable("errMsg","Ошибка при вызове CALL2");
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_1a6gd5g" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_1553r7m</bpmn:incoming>
@@ -662,13 +659,13 @@ execution.setVariable("fault", true);</bpmn:script>
 def result = execution.getVariable("executeSecondCall");
 
 execution.setVariable("errMsg",text + result.data.smsgtext);
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="ScriptTask_1azd94i" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_1txmfu2</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_11wg65x</bpmn:outgoing>
       <bpmn:script>execution.setVariable("errMsg","Ошибка при вызове ответ CALL2");
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="ScriptTask_05qfg4o" name="Ошибка" scriptFormat="JavaScript">
       <bpmn:incoming>SequenceFlow_0i478eq</bpmn:incoming>
@@ -676,13 +673,13 @@ execution.setVariable("fault", true);</bpmn:script>
       <bpmn:script>var code = execution.getVariable("getSecondCall")
 
 execution.setVariable("errMsg","Ошибка CALL2, DECISION_CODE:" + code.data.rscrlst[0].DECISION_CODE);
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="Task_0phrk28" name="Ошибка" scriptFormat="Groovy">
       <bpmn:incoming>SequenceFlow_1yaa6s1</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_02whmxd</bpmn:outgoing>
       <bpmn:script>execution.setVariable("errMsg", "Ошибка convert xml to json");
-execution.setVariable("fault", true);</bpmn:script>
+execution.setVariable("status","fault");</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="SequenceFlow_1ciryij" sourceRef="Task_0mn6z5t" targetRef="EndEvent_01z51dn" />
     <bpmn:sequenceFlow id="SequenceFlow_0k3yiba" sourceRef="Task_0gap7nl" targetRef="EndEvent_01z51dn" />

@@ -62,13 +62,13 @@
       <bpmn:outgoing>SequenceFlow_1q4wyzq</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0hpxwhr" sourceRef="ExclusiveGateway_1qreyeo" targetRef="success">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${success == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status == 'success'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0m0n722" sourceRef="ExclusiveGateway_1qreyeo" targetRef="fault">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${fault == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status == 'fault'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1q4wyzq" sourceRef="ExclusiveGateway_1qreyeo" targetRef="reject">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${reject == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status == 'reject'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="fault" name="Fault" camunda:assignee="${initiator}" camunda:candidateGroups="PUBLIC">
       <bpmn:incoming>SequenceFlow_0m0n722</bpmn:incoming>

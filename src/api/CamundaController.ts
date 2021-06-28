@@ -48,4 +48,13 @@ export class CamundaController {
       baseURL: webConfigEnv.CAMUNDA_TEST,
     });
   }
+
+  async getTaskProcessInstanceId(processInstanceId?: string): Promise<Task> {
+    return await server.get(
+      `/task/claim/byProcessInstanceId/${processInstanceId}`,
+      {
+        baseURL: webConfigEnv.CAMUNDA_TEST,
+      }
+    );
+  }
 }
