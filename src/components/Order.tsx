@@ -211,12 +211,12 @@ const programms: ProgramProps[] = [
     spurcode: 150,
   },
   {
-    title: "Собственная ипотека",
+    title: "#Ипотека",
     code: "0.201.1.1131",
     spurcode: 112,
   },
   {
-    title: "Собственная ипотека ДДУ",
+    title: "#Ипотека ДДУ",
     code: "0.201.1.1121",
     spurcode: 139,
   },
@@ -1151,6 +1151,12 @@ const Order = (props: any) => {
                       target="_blank"
                     >
                       условиями
+                    </BccLink>
+                    <BccLink
+                      href="https://www.bcc.kz/fizical/kreditovanie/ipotechnoe-kreditovanie/"
+                      target="_blank"
+                    >
+                      , тарифами Банка
                     </BccLink>
                   </BccTypography>
                 </Grid>
