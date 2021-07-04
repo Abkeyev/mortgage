@@ -23,6 +23,8 @@ export { default as BccRadioGroup } from "./BccRadio/BccRadioGroup/BccRadioGroup
 export { default as BccInputLabel } from "./BccInput/BccInputLabel/BccInputLabel";
 export { default as BccCheckbox } from "./BccCheckbox/BccCheckbox";
 export { default as BccSwitch } from "./BccSwitch/BccSwitch";
+// InputSlider
+export { default as BccInputTextSlider } from "./BccInput/BccInputTextSlider";
 // Form
 export { default as BccFormControl } from "./BccForm/BccFormControl/BccFormControl";
 export { default as BccFormControlLabel } from "./BccForm/BccFormControlLabel/BccFormControlLabel";
