@@ -15,9 +15,9 @@ export { default as BccAlertTitle } from "./BccAlertTitle/BccAlertTitle";
 export { default as BccBadge } from "./BccBadge/BccBadge";
 export { default as BccGrid } from "./BccGrid/BccGrid";
 export { default as BccLink } from "./BccLink/BccLink";
-export { default as BccSlider } from "./BccSlider/BccSlider";
 // Input
 export { default as BccInput } from "./BccInput/BccInput";
+export { default as BccInputText } from "./BccInput/BccInputText";
 export { default as BccRadio } from "./BccRadio/BccRadio";
 export { default as BccRadioGroup } from "./BccRadio/BccRadioGroup/BccRadioGroup";
 export { default as BccInputLabel } from "./BccInput/BccInputLabel/BccInputLabel";
@@ -72,7 +72,6 @@ export { default as BccDialogEx } from "./BccDialog/BccDialogEx";
 export { default as BccPopoverEx } from "./BccPopover/BccPopoverEx";
 export { default as BccSnackbarEx } from "./BccSnackbar/BccSnackbarEx";
 export { default as BccTableEx } from "./BccTable/BccTableEx";
-export { default as BccSliderEx } from "./BccSlider/BccSliderEx";
 // NEW
 export { default as BccCard } from "./BccCard/BccCard";
 export { default as BccCardFull } from "./BccCard/BccCardFull";

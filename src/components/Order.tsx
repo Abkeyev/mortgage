@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Grid, MenuItem, Snackbar } from "@material-ui/core";
+import { Button, Grid, MenuItem, Snackbar } from "@material-ui/core";
 import {
   BccTypography,
   BccCheckbox,
   BccInput,
+  BccInputText,
   BccLink,
-  BccSlider,
   BccButton,
   BccInputTextSlider,
 } from "./BccComponents";
@@ -32,131 +32,25 @@ const useStyles = makeStyles((theme: Theme) =>
       boxSizing: "border-box",
       padding: "30px 48px 80px",
     },
-    code: {
-      margin: 0,
-      "& input": {
-        height: 62,
-        boxSizing: "border-box",
-      },
-    },
     timer: {
       fontSize: 16,
       color: "#4D565F",
     },
-    paymentWrap: {
-      position: "relative",
-      marginBottom: 40,
-      width: 360,
-    },
-    sliderWrap: {
-      position: "relative",
-      width: "100%",
-    },
-    input: {
-      display: "block",
-      width: "100%",
-      "& > div": {
-        width: "inherit",
-      },
-    },
-    inputSlider: {
-      display: "block",
-      width: "100%",
-      "& > div": {
-        width: "inherit",
-      },
-    },
-    sliderRange: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      bottom: -20,
-      color: "#b3b6ba",
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 12,
-    },
-    privateDate: {
-      "& > div": {
-        display: "flex",
-        flexDirection: "column",
-      },
-    },
-    inputStyle: {
-      marginBottom: 24,
-      textAlign: "left",
-      "& p": {
-        fontSize: 14,
-        marginTop: 4,
-        whiteSpace: "break-spaces",
-        opacity: 0.7,
-        padding: 0,
-        margin: 0,
-      },
-    },
-    // inputStyleLast: {
-    //   width: 360,
-    //   textAlign: "left",
-    // },
-    sum: {
-      marginLeft: 140,
-      marginTop: 52,
-      backgroundColor: "white",
-      padding: 20,
-      height: "max-content",
-      borderRadius: 8,
-    },
-    firstBlock: {
-      width: 360,
-    },
-    checkboxText: {
-      alignItems: "center",
-      marginBottom: 48,
-    },
-    btn: {
-      minWidth: 320,
-    },
-    btnCode: {
-      width: "100%",
-    },
     block: {
       display: "block",
       margin: "36px auto 0",
-      width: "60%",
       boxSizing: "border-box",
       backgroundColor: "white",
       padding: 48,
       boxShadow:
         "0px 10px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04)",
     },
-    blockInner: {
-      margin: "0 36px",
-      padding: "26px 26px 16px",
-      textAlign: "center",
-      backgroundColor: "rgba(125, 206, 160, 0.1)",
-    },
-    menuBranch: {
-      display: "block",
-      "& > p": {
-        fontSize: 14,
-        marginTop: 2,
-        opacity: 0.7,
-        padding: 0,
-        margin: 0,
-      },
-    },
-    linkReSendSms: {
+    linkResend: {
       color: "#3F0259",
       fontSize: 16,
       height: "auto",
       padding: 0,
-      lineHeight: "initial",
       cursor: "pointer",
-      textTransform: "none",
-      "&:hover, &:active": {
-        textDecoration: "underline",
-        opacity: 0.8,
-      },
     },
   })
 );
@@ -248,6 +142,7 @@ const BccMaskedIinInput = (props: TextMaskCustomProps) => {
 
 const Order = (props: any) => {
   const classes = useStyles({});
+
   const [step, setStep] = useState(0);
   const [price, setPrice] = useState(15000000);
   const [priceMin, setPriceMin] = useState(1000000);
@@ -281,6 +176,7 @@ const Order = (props: any) => {
   const [iinError, setIinError] = useState<boolean>(false);
   const [timer, setTimer] = useState(0);
   const [analys, setAnalys] = useState<boolean | -1>(-1);
+  const [otpError, setOtpError] = useState(false);
 
   React.useEffect(() => {
     let timeOut = setInterval(() => {
@@ -297,24 +193,12 @@ const Order = (props: any) => {
     return res.replace(/\(|\)| /g, "");
   };
 
-  const isValid = () => {
-    return (
-      firstName.length > 1 &&
-      secondName.length > 1 &&
-      iin.length === 15 &&
-      phone.replace("_", "").length === 17 &&
-      program !== -1 &&
-      agree &&
-      profession !== -1 &&
-      city.code !== ""
-    );
-  };
-
   const handleClose = () => {
     setOpenError(false);
   };
 
-  const getOtp = () => {
+  const getOtp = (e: any) => {
+    e.preventDefault();
     if (phone.substr(3, 1) !== "7") {
       setPhoneError(true);
       return;
@@ -336,7 +220,8 @@ const Order = (props: any) => {
       });
   };
 
-  const onSubmitOtp = () => {
+  const onSendOtp = (e: any) => {
+    e.preventDefault();
     setLoading(true);
     api.authOtp
       .confirmOtp({
@@ -348,15 +233,18 @@ const Order = (props: any) => {
         props.scrollToOrder(false);
         localStorage.setItem("userContext", JSON.stringify(userContext));
         startProcess();
+        setOtpError(false);
       })
       .catch((e: any) => {
         props.scrollToOrder(false);
         console.error(e);
-        setLoading(false);
+        setOtpError(false);
+        setLoading(true);
       });
   };
 
-  const onReSend = () => {
+  const onResend = (e: any) => {
+    e.preventDefault();
     setLoading(true);
     api.authOtp
       .sendOtp({ iin: iin.replace(/ /g, ""), phone: formatPhoneNumber() })
@@ -508,487 +396,491 @@ const Order = (props: any) => {
           </Alert>
         </Snackbar>
         <BlockUi tag="div" blocking={isLoading}>
-          {step === 0 ? (
-            <>
-              <BccTypography block type="h4" color="#4D565F" mb="28px">
-                Ориентировочный расчет ипотеки
-              </BccTypography>
+          {step === 1 ? (
+            <form onSubmit={getOtp}>
+              <React.Fragment>
+                <BccTypography block type="h4" color="#4D565F" mb="28px">
+                  Ориентировочный расчет ипотеки
+                </BccTypography>
 
-              <Grid container spacing={2} justify="center">
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    fullWidth
-                    label="Программа"
-                    variant="outlined"
-                    value={program}
-                    onChange={(e: any) => {
-                      if (e.target.value !== -1) {
-                        setProgram(e.target.value);
-                        if (e.target.value.code === "0.201.1.1123") {
-                          setAnalys(-1);
-                          setPeriodMin(3);
-                          setPeriodMax(300);
+                <Grid container spacing={2} justify="center">
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      fullWidth
+                      label="Программа"
+                      variant="outlined"
+                      value={program}
+                      select
+                      required
+                      onChange={(e: any) => {
+                        if (e.target.value !== -1) {
+                          setProgram(e.target.value);
+                          if (e.target.value.code === "0.201.1.1123") {
+                            setAnalys(-1);
+                            setPeriodMin(3);
+                            setPeriodMax(300);
+                            if (
+                              city.code === "ALM" ||
+                              city.code === "AST" ||
+                              city.code === "AKT" ||
+                              city.code === "ATR" ||
+                              city.code === "SMK"
+                            ) {
+                              setPriceMax(25000000);
+                            } else if (city.code === "KAR") {
+                              setPriceMax(20000000);
+                            } else {
+                              setPriceMax(15000000);
+                            }
+                            setAnalys(-1);
+                            setPeriodMin(3);
+                            setPeriodMax(180);
+                            if (city.code === "ALM" || city.code === "AST") {
+                              setPriceMax(35000000);
+                            } else if (
+                              city.code === "AKT" ||
+                              city.code === "ATR" ||
+                              city.code === "SMK"
+                            ) {
+                              setPriceMax(25000000);
+                            } else if (city.code === "KAR") {
+                              setPriceMax(20000000);
+                            } else {
+                              setPriceMax(15000000);
+                            }
+                          } else if (
+                            e.target.value.code === "0.201.1.1121" ||
+                            e.target.value.code === "0.201.1.1131"
+                          ) {
+                            setAnalys(false);
+                            countMinPay(period, price, false, e.target.value);
+                          }
+                        }
+                      }}
+                    >
+                      <MenuItem value={-1}>Выберите программу</MenuItem>
+                      {programms.map((b: any, index: number) => {
+                        return (
+                          <MenuItem key={index} value={b}>
+                            {b.title}
+                          </MenuItem>
+                        );
+                      })}
+                    </BccInput>
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      fullWidth
+                      label="Местонахождение недвижимости"
+                      variant="outlined"
+                      value={city.code}
+                      select
+                      required
+                      onChange={(e: any) => {
+                        const result =
+                          cities?.find((c) => c.code == e.target.value) ||
+                          ({} as City);
+
+                        if (program !== -1 && program.code === "0.201.1.1123") {
                           if (
-                            city.code === "ALM" ||
-                            city.code === "AST" ||
-                            city.code === "AKT" ||
-                            city.code === "ATR" ||
-                            city.code === "SMK"
+                            result.code === "ALM" ||
+                            result.code === "AST" ||
+                            result.code === "AKT" ||
+                            result.code === "ATR" ||
+                            result.code === "SMK"
                           ) {
                             setPriceMax(25000000);
-                          } else if (city.code === "KAR") {
+                          } else if (result.code === "KAR") {
                             setPriceMax(20000000);
                           } else {
                             setPriceMax(15000000);
                           }
-                          setAnalys(-1);
-                          setPeriodMin(3);
-                          setPeriodMax(180);
-                          if (city.code === "ALM" || city.code === "AST") {
+                        } else if (
+                          program !== -1 &&
+                          program.code === "0.201.1.1129"
+                        ) {
+                          if (result.code === "ALM" || result.code === "AST") {
                             setPriceMax(35000000);
                           } else if (
-                            city.code === "AKT" ||
-                            city.code === "ATR" ||
-                            city.code === "SMK"
+                            result.code === "AKT" ||
+                            result.code === "ATR" ||
+                            result.code === "SMK"
                           ) {
                             setPriceMax(25000000);
-                          } else if (city.code === "KAR") {
+                          } else if (result.code === "KAR") {
                             setPriceMax(20000000);
                           } else {
                             setPriceMax(15000000);
                           }
                         } else if (
-                          e.target.value.code === "0.201.1.1121" ||
-                          e.target.value.code === "0.201.1.1131"
+                          (program !== -1 && program.code === "0.201.1.1121") ||
+                          (program !== -1 && program.code === "0.201.1.1131")
                         ) {
-                          setAnalys(false);
-                          countMinPay(period, price, false, e.target.value);
+                          countMinPay(period, price, false, program);
                         }
-                      }
-                    }}
-                    select
-                  >
-                    <MenuItem value={-1}>Выберите программу</MenuItem>
-                    {programms.map((b: any, index: number) => {
-                      return (
-                        <MenuItem key={index} value={b}>
-                          {b.title}
-                        </MenuItem>
-                      );
-                    })}
-                  </BccInput>
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    fullWidth
-                    label="Местонахождение недвижимости"
-                    variant="outlined"
-                    value={city.code}
-                    onChange={(e: any) => {
-                      const result =
-                        cities?.find((c) => c.code == e.target.value) ||
-                        ({} as City);
 
-                      if (program !== -1 && program.code === "0.201.1.1123") {
-                        if (
-                          result.code === "ALM" ||
-                          result.code === "AST" ||
-                          result.code === "AKT" ||
-                          result.code === "ATR" ||
-                          result.code === "SMK"
-                        ) {
-                          setPriceMax(25000000);
-                        } else if (result.code === "KAR") {
-                          setPriceMax(20000000);
-                        } else {
-                          setPriceMax(15000000);
-                        }
-                      } else if (
-                        program !== -1 &&
-                        program.code === "0.201.1.1129"
-                      ) {
-                        if (result.code === "ALM" || result.code === "AST") {
-                          setPriceMax(35000000);
-                        } else if (
-                          result.code === "AKT" ||
-                          result.code === "ATR" ||
-                          result.code === "SMK"
-                        ) {
-                          setPriceMax(25000000);
-                        } else if (result.code === "KAR") {
-                          setPriceMax(20000000);
-                        } else {
-                          setPriceMax(15000000);
-                        }
-                      } else if (
-                        (program !== -1 && program.code === "0.201.1.1121") ||
-                        (program !== -1 && program.code === "0.201.1.1131")
-                      ) {
-                        countMinPay(period, price, false, program);
-                      }
+                        setCity(result);
+                      }}
+                    >
+                      <MenuItem value={-1}>Выберите город</MenuItem>
+                      {cities?.map((b: City, index: number) => {
+                        return (
+                          b.code !== null && (
+                            <MenuItem key={index} value={b.code}>
+                              {b.rusName}
+                            </MenuItem>
+                          )
+                        );
+                      })}
+                    </BccInput>
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      fullWidth
+                      label="Отделение"
+                      variant="outlined"
+                      value={branch.address}
+                      required
+                      select
+                      onChange={(e: any) => {
+                        const result =
+                          branches
+                            ?.find((b) => b.code == city.id)
+                            ?.markers?.find((m) => m.depId == e.target.value) ||
+                          ({} as Marker);
 
-                      setCity(result);
-                    }}
-                    select
-                  >
-                    <MenuItem value={-1}>Выберите город</MenuItem>
-                    {cities?.map((b: City, index: number) => {
-                      return (
-                        b.code !== null && (
-                          <MenuItem key={index} value={b.code}>
-                            {b.rusName}
+                        setBranch(result);
+                      }}
+                    >
+                      <MenuItem value={-1}>Выберите отделение</MenuItem>
+                      {branches
+                        ?.find((b) => b.code == city.id)
+                        ?.markers.map((m, i) => (
+                          <MenuItem key={i} value={m.depId}>
+                            {m.address}
                           </MenuItem>
-                        )
-                      );
-                    })}
-                  </BccInput>
+                        ))}
+                    </BccInput>
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInputTextSlider
+                      label="Стоимость недвижимости"
+                      value={price}
+                      required
+                      unit="₸"
+                      min={priceMin}
+                      max={priceMax}
+                      step={5000}
+                      onValueChange={(e: number) => {
+                        setPrice(e);
+                      }}
+                    />
+                    {analys !== -1 && (
+                      <Grid
+                        container
+                        justify="flex-start"
+                        wrap="nowrap"
+                        style={{ marginTop: 20 }}
+                      >
+                        <Grid item>
+                          <BccCheckbox
+                            value="analys"
+                            color="primary"
+                            checked={analys}
+                            onChange={() => {
+                              countMinPay(period, price, !analys);
+                              setAnalys(!analys);
+                            }}
+                          />
+                        </Grid>
+                        <Grid item>
+                          <BccTypography type="p3" ml="10px">
+                            Без анализа платежеспособности
+                          </BccTypography>
+                        </Grid>
+                      </Grid>
+                    )}
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInputTextSlider
+                      label="Первоначальный взнос"
+                      value={pay}
+                      required
+                      unit="₸"
+                      min={payMin}
+                      max={payMax}
+                      step={5000}
+                      onValueChange={(e: number) => {
+                        setPay(e);
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInputTextSlider
+                      label="Срок займа"
+                      value={period}
+                      required
+                      unit="мес*"
+                      min={periodMin}
+                      max={periodMax}
+                      step={1}
+                      onValueChange={(e: number) => {
+                        setPeriod(e);
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInputTextSlider
+                      label="Доход"
+                      value={income}
+                      required
+                      unit="₸"
+                      min={100000}
+                      max={10000000}
+                      step={50000}
+                      onValueChange={(e: number) => {
+                        setIncome(e);
+                      }}
+                    />
+                  </Grid>
                 </Grid>
 
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    fullWidth
-                    label="Отделение"
-                    variant="outlined"
-                    value={branch.address}
-                    onChange={(e: any) => {
-                      const result =
-                        branches
-                          ?.find((b) => b.code == city.id)
-                          ?.markers?.find((m) => m.depId == e.target.value) ||
-                        ({} as Marker);
+                <BccTypography
+                  block
+                  type="h4"
+                  color="#4D565F"
+                  mt="80px"
+                  mb="28px"
+                >
+                  Личные данные
+                </BccTypography>
 
-                      setBranch(result);
-                    }}
-                    select
-                  >
-                    <MenuItem value={-1}>Выберите отделение</MenuItem>
-                    {branches
-                      ?.find((b) => b.code == city.id)
-                      ?.markers.map((m, i) => (
-                        <MenuItem key={i} value={m.depId}>
-                          {m.address}
+                <Grid container spacing={2} justify="center">
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      label="Фамилия"
+                      variant="filled"
+                      fullWidth
+                      value={firstName}
+                      onChange={(e: any) => setFirstName(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      label="Имя"
+                      variant="filled"
+                      fullWidth
+                      value={secondName}
+                      onChange={(e: any) => setSecondName(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      label="Отчество"
+                      variant="filled"
+                      fullWidth
+                      value={thirdName}
+                      onChange={(e: any) => setThirdName(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      variant="filled"
+                      label="Номер телефона"
+                      fullWidth
+                      onChange={(e: any) => setPhone(e.target.value)}
+                      helperText={
+                        phoneError ? "Неверный формат номера телефона" : ""
+                      }
+                      error={phoneError ? true : false}
+                      value={phone}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      InputProps={{
+                        inputComponent: BccMaskedInput as any,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      label="ИИН"
+                      variant="filled"
+                      fullWidth
+                      value={iin}
+                      onChange={(e: any) => setIin(e.target.value)}
+                      helperText={iinError ? "Неверный формат ИИН" : ""}
+                      error={iinError ? true : false}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      InputProps={{
+                        inputComponent: BccMaskedIinInput as any,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      label="Профессия"
+                      variant="outlined"
+                      fullWidth
+                      value={profession}
+                      onChange={(e: any) => setProfession(e.target.value)}
+                      select
+                    >
+                      <MenuItem value={-1}>Выберите профессию</MenuItem>
+                      {professions.map((val, index) => (
+                        <MenuItem key={index} value={val}>
+                          {val}
                         </MenuItem>
                       ))}
-                  </BccInput>
-                </Grid>
-
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInputTextSlider
-                    label="Стоимость недвижимости"
-                    value={price}
-                    required
-                    unit="₸"
-                    min={priceMin}
-                    max={priceMax}
-                    step={5000}
-                    onValueChange={(e: number) => {
-                      setPrice(e);
-                    }}
-                  />
-                  {analys !== -1 && (
-                    <Grid
-                      container
-                      justify="flex-start"
-                      wrap="nowrap"
-                      className={classes.checkboxText}
+                    </BccInput>
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      label="Семейное положение"
+                      variant="outlined"
+                      fullWidth
+                      value={family}
+                      onChange={(e: any) => setFamily(e.target.value)}
+                      select
                     >
-                      <Grid item>
-                        <BccCheckbox
-                          value="analys"
-                          color="primary"
-                          checked={analys}
-                          onChange={() => {
-                            countMinPay(period, price, !analys);
-                            setAnalys(!analys);
-                          }}
-                        />
-                      </Grid>
-                      <Grid item>
-                        <BccTypography type="p3" ml="10px">
-                          Без анализа платежеспособности
-                        </BccTypography>
-                      </Grid>
-                    </Grid>
-                  )}
+                      <MenuItem value={-1}>Семейное положение</MenuItem>
+                      {maritalStatus.map((val, index) => (
+                        <MenuItem value={index}>{val}</MenuItem>
+                      ))}
+                    </BccInput>
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInputTextSlider
+                      label="Количество иждивенцев"
+                      value={dependents}
+                      required
+                      unit="чел."
+                      min={0}
+                      max={9}
+                      step={1}
+                      onValueChange={(e: number) => {
+                        console.log("VAlUE: ", e);
+                        setDependents(e);
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccInput
+                      label="E-mail (опционально)"
+                      variant="filled"
+                      fullWidth
+                      value={email}
+                      onChange={(e: any) => setEmail(e.target.value)}
+                    />
+                  </Grid>
                 </Grid>
-
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInputTextSlider
-                    label="Первоначальный взнос"
-                    value={pay}
-                    required
-                    unit="₸"
-                    min={payMin}
-                    max={payMax}
-                    step={5000}
-                    onValueChange={(e: number) => {
-                      setPay(e);
-                    }}
-                  />
+                <Grid
+                  container
+                  justify="flex-start"
+                  wrap="nowrap"
+                  style={{ marginBottom: 30, marginTop: 20 }}
+                >
+                  <Grid item>
+                    <BccCheckbox
+                      value="remember"
+                      color="primary"
+                      checked={agree}
+                      required
+                      onClick={() => setAgree(!agree)}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <BccTypography type="p3" ml="10px">
+                      Я согласен(а) с{" "}
+                      <BccLink
+                        href={process.env.PUBLIC_URL + "/anketa.pdf"}
+                        target="_blank"
+                      >
+                        условиями
+                      </BccLink>
+                      <BccLink
+                        href="https://www.bcc.kz/fizical/kreditovanie/ipotechnoe-kreditovanie/"
+                        target="_blank"
+                      >
+                        , тарифами Банка
+                      </BccLink>
+                    </BccTypography>
+                  </Grid>
                 </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInputTextSlider
-                    label="Срок займа"
-                    value={period}
-                    required
-                    unit="мес*"
-                    min={periodMin}
-                    max={periodMax}
-                    step={1}
-                    onValueChange={(e: number) => {
-                      setPeriod(e);
-                    }}
-                  />
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInputTextSlider
-                    label="Доход"
-                    value={income}
-                    required
-                    unit="₸"
-                    min={100000}
-                    max={10000000}
-                    step={50000}
-                    onValueChange={(e: number) => {
-                      setIncome(e);
-                    }}
-                  />
-                </Grid>
-              </Grid>
-
-              <BccTypography
-                block
-                type="h4"
-                color="#4D565F"
-                mt="80px"
-                mb="28px"
-              >
-                Личные данные
-              </BccTypography>
-
-              <Grid container spacing={2} justify="center">
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    label="Фамилия"
-                    variant="filled"
-                    fullWidth
-                    value={firstName}
-                    onChange={(e: any) => setFirstName(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    label="Имя"
-                    variant="filled"
-                    fullWidth
-                    value={secondName}
-                    onChange={(e: any) => setSecondName(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    label="Отчество"
-                    variant="filled"
-                    fullWidth
-                    value={thirdName}
-                    onChange={(e: any) => setThirdName(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    variant="filled"
-                    label="Номер телефона"
-                    fullWidth
-                    onChange={(e: any) => setPhone(e.target.value)}
-                    helperText={
-                      phoneError ? "Неверный формат номера телефона" : ""
-                    }
-                    error={phoneError ? true : false}
-                    value={phone}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    InputProps={{
-                      inputComponent: BccMaskedInput as any,
-                    }}
-                  />
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    label="ИИН"
-                    variant="filled"
-                    fullWidth
-                    value={iin}
-                    onChange={(e: any) => setIin(e.target.value)}
-                    helperText={iinError ? "Неверный формат ИИН" : ""}
-                    error={iinError ? true : false}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    InputProps={{
-                      inputComponent: BccMaskedIinInput as any,
-                    }}
-                  />
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    label="Семейное положение"
-                    variant="outlined"
-                    fullWidth
-                    value={family}
-                    onChange={(e: any) => setFamily(e.target.value)}
-                    select
-                  >
-                    <MenuItem value={-1}>Семейное положение</MenuItem>
-                    {maritalStatus.map((val, index) => (
-                      <MenuItem value={index}>{val}</MenuItem>
-                    ))}
-                  </BccInput>
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    label="Профессия"
-                    variant="outlined"
-                    fullWidth
-                    value={profession}
-                    onChange={(e: any) => setProfession(e.target.value)}
-                    select
-                  >
-                    <MenuItem value={-1}>Выберите профессию</MenuItem>
-                    {professions.map((val, index) => (
-                      <MenuItem key={index} value={val}>
-                        {val}
-                      </MenuItem>
-                    ))}
-                  </BccInput>
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInputTextSlider
-                    label="Количество иждивенцев"
-                    value={dependents}
-                    required
-                    unit="чел."
-                    min={0}
-                    max={9}
-                    step={1}
-                    onValueChange={(e: number) => {
-                      console.log("VAlUE: ", e);
-                      setDependents(e);
-                    }}
-                  />
-                </Grid>
-                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-                  <BccInput
-                    label="E-mail (опционально)"
-                    variant="filled"
-                    fullWidth
-                    value={email}
-                    onChange={(e: any) => setEmail(e.target.value)}
-                  />
-                </Grid>
-              </Grid>
-              <Grid
-                container
-                justify="flex-start"
-                wrap="nowrap"
-                className={classes.checkboxText}
-              >
-                <Grid item>
-                  <BccCheckbox
-                    value="remember"
-                    color="primary"
-                    checked={agree}
-                    onClick={() => setAgree(!agree)}
-                  />
-                </Grid>
-                <Grid item>
-                  <BccTypography type="p3" ml="10px">
-                    Я согласен(а) с{" "}
-                    <BccLink
-                      href={process.env.PUBLIC_URL + "/anketa.pdf"}
-                      target="_blank"
-                    >
-                      условиями
-                    </BccLink>
-                    <BccLink
-                      href="https://www.bcc.kz/fizical/kreditovanie/ipotechnoe-kreditovanie/"
-                      target="_blank"
-                    >
-                      , тарифами Банка
-                    </BccLink>
-                  </BccTypography>
-                </Grid>
-              </Grid>
-              <BccButton
-                className={classes.btn}
-                variant="contained"
-                disabled={!isValid()}
-                color="primary"
-                onClick={() => getOtp()}
-              >
-                Далее
-              </BccButton>
-            </>
-          ) : step === 1 ? (
-            <div className={classes.block}>
-              <BccTypography type="h3" block mb="16px">
-                Банк обрабатывает Вашу заявку
-              </BccTypography>
-              <BccTypography type="p1" block mb="80px">
-                Мы отправили код на номер +7 70* *** ** **
-              </BccTypography>
-
-              <Grid
-                item
-                container
-                justify="space-between"
-                alignItems="center"
-                spacing={4}
-              >
-                <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
-                  <BccInput
-                    variant="outlined"
-                    className={classes.code}
-                    margin="normal"
-                    fullWidth
-                    id="code"
-                    name="code"
-                    value={code}
-                    onChange={(e: any) =>
-                      setCode(e.target.value.replace(/\D/g, "").substr(0, 6))
-                    }
-                    label="Код подтверждения"
-                  />
-                </Grid>
-                <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
+                <Grid item xl={3} lg={3} md={3} sm={12} xs={12}>
                   <BccButton
-                    onClick={() => onSubmitOtp()}
-                    variant="contained"
                     fullWidth
-                    disabled={!isValid()}
+                    variant="contained"
+                    type="submit"
+                    color="primary"
                   >
-                    Подтвердить
+                    Далее
                   </BccButton>
                 </Grid>
+              </React.Fragment>
+            </form>
+          ) : step === 0 ? (
+            <Grid
+              item
+              xl={8}
+              lg={8}
+              md={8}
+              sm={12}
+              xs={12}
+              className={classes.block}
+            >
+              <Grid item>
+                <BccTypography type="h3" block mb="15px">
+                  Банк обрабатывает Вашу заявку
+                </BccTypography>
+              </Grid>
+              <Grid item>
+                <BccTypography type="p1" block mb="50px">
+                  Мы отправили код на номер +7 70* *** ** **
+                </BccTypography>
+              </Grid>
+
+              <form onSubmit={onSendOtp}>
+                <Grid container justify="flex-start" spacing={2}>
+                  <Grid item xl={5} lg={5} md={5} sm={12} xs={12}>
+                    <BccInput
+                      fullWidth
+                      variant="outlined"
+                      required
+                      value={code}
+                      onChange={(e: any) =>
+                        setCode(e.target.value.replace(/\D/g, "").substr(0, 6))
+                      }
+                      label="Код подтверждения"
+                    />
+                  </Grid>
+                  <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <BccButton fullWidth variant="contained" type="submit">
+                      Подтвердить
+                    </BccButton>
+                  </Grid>
+                </Grid>
+              </form>
+              <Grid item style={{ marginTop: "20px" }}>
                 {timer !== 0 ? (
                   <Grid item>
-                    <BccTypography type="p3" className={classes.timer}>
+                    <BccTypography type="h1" className={classes.timer}>
                       Отправить повторно СМС через 00:{timer}
                     </BccTypography>
                   </Grid>
                 ) : (
-                  <Grid item>
-                    <BccButton
-                      variant="text"
-                      className={classes.linkReSendSms}
-                      onClick={() => onReSend()}
-                    >
-                      Отправить повторно
-                    </BccButton>
-                  </Grid>
+                  <form onSubmit={onResend}>
+                    <Grid item>
+                      <Button type="submit" className={classes.linkResend}>
+                        Отправить повторно
+                      </Button>
+                    </Grid>
+                  </form>
                 )}
               </Grid>
-            </div>
+            </Grid>
           ) : (
             ""
           )}
