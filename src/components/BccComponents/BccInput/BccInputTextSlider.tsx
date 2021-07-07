@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   TextField,
   Slider,
@@ -161,6 +161,8 @@ const BccInputTextSlider = (
   const classes = useStyles3();
 
   const [val, setVal] = useState(value || min);
+
+  useEffect(() => setVal(value || min), [value]);
 
   return (
     <Grid container>
