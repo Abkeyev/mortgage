@@ -85,18 +85,10 @@ const BccMaskedIinInput = (props: TextMaskCustomProps) => {
   );
 };
 
-interface FinAnalys {
-  code: string;
-  rate: string;
-  pay: number;
-}
-
 interface Program {
   title: string;
   code: string;
   spurcode: number;
-  finAnalys: FinAnalys;
-  period: number;
 }
 
 interface City {
@@ -120,29 +112,21 @@ const programms: Program[] = [
     title: "7-20-25 Скоринг",
     code: "0.201.1.1123",
     spurcode: 139,
-    finAnalys: { code: "1", pay: 20, rate: "7" },
-    period: 300,
   },
   {
     title: "Ипотека Баспана-Хит ДДУ",
     code: "0.201.1.1129",
     spurcode: 150,
-    finAnalys: { code: "1", pay: 20, rate: "10.75" },
-    period: 180,
   },
   {
     title: "#Ипотека",
     code: "0.201.1.1131",
     spurcode: 112,
-    finAnalys: { code: "1", pay: 30, rate: "15.5" },
-    period: 180,
   },
   {
     title: "#Ипотека ДДУ",
     code: "0.201.1.1121",
     spurcode: 139,
-    finAnalys: { code: "1", pay: 30, rate: "15.5" },
-    period: 180,
   },
 ];
 
@@ -169,6 +153,7 @@ const Order = (props: any) => {
   const [price, setPrice] = useState(1000000);
   const [priceMin, setPriceMin] = useState(1000000);
   const [priceMax, setPriceMax] = useState(50000000);
+  const [analys, setAnalys] = useState(false);
   const [pay, setPay] = useState(20);
   const [payMin, setPayMin] = useState(20);
   const [payMax, setPayMax] = useState(100);
@@ -190,7 +175,6 @@ const Order = (props: any) => {
   const [openError, setOpenError] = useState(false);
   const [iinError, setIinError] = useState<boolean>(false);
   const [timer, setTimer] = useState(0);
-  const [analys, setAnalys] = useState<boolean | -1>(-1);
   const [otpError, setOtpError] = useState(false);
 
   React.useEffect(() => {
@@ -316,21 +300,21 @@ const Order = (props: any) => {
         client: {
           prod_code: program.code,
           spurcode: program.spurcode,
-          // iin: iin.replace(/ /g, ""),
-          // city: city.code,
-          // depId: branch.depId,
-          // fin_analys: analys === -1 ? "1" : (+!analys).toString(),
-          // phone: formatPhoneNumber(),
-          // date: new Date().toJSON().slice(0, 10).split("-").reverse().join("."),
-          // initial_fee: +pay,
-          // cost: +price,
-          // term: period,
-          // rate: program !== -1 && getRate(),
-          // family_numb: dependents,
-          // marital_status: family,
-          // income: income,
-          // profession: profession,
-          // agreement: agree,
+          rate: rate,
+          fin_analys: analys ? "0" : "1",
+          city: city.code,
+          depId: branch.depId,
+          cost: +price,
+          initial_fee: +pay,
+          term: period,
+          income: income,
+          iin: iin.replace(/ /g, ""),
+          profession: profession,
+          marital_status: family,
+          family_numb: dependents,
+          phone: formatPhoneNumber(),
+          agreement: agree,
+          date: new Date().toJSON().slice(0, 10).split("-").reverse().join("."),
         },
       })
       .then((res: any) => {
@@ -427,13 +411,17 @@ const Order = (props: any) => {
                         if (e.target.value !== -1) {
                           var program = e.target.value;
                           setProgram(program);
-                          if (
-                            program.code === "0.201.1.1123" ||
-                            program.code === "0.201.1.1129"
-                          ) {
+
+                          if (program.code === "0.201.1.1123") {
                             setPay(20);
                             setPayMin(20);
-                            console.log("Program 1", program);
+                            setPeriodMax(300);
+                          }
+
+                          if (program.code === "0.201.1.1129") {
+                            setPay(20);
+                            setPayMin(20);
+                            setPeriodMax(180);
                           }
 
                           if (
@@ -442,7 +430,8 @@ const Order = (props: any) => {
                           ) {
                             setPay(30);
                             setPayMin(30);
-                            console.log("Program 2", program);
+                            setPeriodMax(180);
+                            setAnalys(false);
                           }
                         }
                       }}
@@ -462,13 +451,13 @@ const Order = (props: any) => {
                       fullWidth
                       label="Местонахождение недвижимости"
                       variant="outlined"
-                      value={city.code}
+                      value={city}
                       select
                       required
                       onChange={(e: any) => {
                         var cityCode = e.target.value;
                         setCity(cityCode);
-                        console.log("CITY and CODE", cityCode, program.code);
+                        console.log("CITY", cityCode);
 
                         // 7-20-25 Скоринг
                         if (program.code === "0.201.1.1123") {
@@ -515,10 +504,10 @@ const Order = (props: any) => {
                       }}
                     >
                       <MenuItem value={-1}>Выберите город</MenuItem>
-                      {cities?.map((b: City, index: number) => {
+                      {cities?.map((city: City, index: number) => {
                         return (
-                          <MenuItem key={index} value={b.code}>
-                            {b.rusName}
+                          <MenuItem key={index} value={city.code}>
+                            {city.rusName}
                           </MenuItem>
                         );
                       })}
@@ -565,7 +554,8 @@ const Order = (props: any) => {
                         setPrice(e);
                       }}
                     />
-                    {analys !== -1 && (
+                    {program.code === "0.201.1.1131" ||
+                    program.code === "0.201.1.1121" ? (
                       <Grid
                         container
                         justify="flex-start"
@@ -577,9 +567,15 @@ const Order = (props: any) => {
                             value="analys"
                             color="primary"
                             checked={analys}
-                            onChange={() => {
-                              // countMinPay(period, price, !analys);
+                            onClick={() => {
                               setAnalys(!analys);
+                              if (!analys) {
+                                setPay(50);
+                                setPayMin(50);
+                              } else {
+                                setPay(30);
+                                setPayMin(30);
+                              }
                             }}
                           />
                         </Grid>
@@ -589,6 +585,8 @@ const Order = (props: any) => {
                           </BccTypography>
                         </Grid>
                       </Grid>
+                    ) : (
+                      ""
                     )}
                   </Grid>
                   <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
@@ -613,11 +611,31 @@ const Order = (props: any) => {
                           setRate("10.75");
                         }
 
-                        if (program.code === "0.201.1.1131") {
-                          if (e >= 30 && e <= 49) {
-                            setPeriodMax(180);
-                            setRate("15.5");
+                        if (!analys) {
+                          if (program.code === "0.201.1.1131") {
+                            if (e >= 30 && e <= 49) {
+                              setPeriodMax(180);
+                              setRate("15.5");
+                            } else if (e >= 50 && e <= 69) {
+                              setPeriodMax(180);
+                              setRate("12.99");
+                            } else if (e >= 70 && e <= 100) {
+                              setPeriodMax(120);
+                              setRate("11");
+                            }
                           }
+
+                          if (program.code === "0.201.1.1121") {
+                            setPeriodMax(180);
+                            if (e >= 30 && e <= 49) {
+                              setRate("15.5");
+                            } else {
+                              setRate("12.99");
+                            }
+                          }
+                        } else {
+                          setPeriodMax(180);
+                          setRate("15.5");
                         }
                       }}
                     />
