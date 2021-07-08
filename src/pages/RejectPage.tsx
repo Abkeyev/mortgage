@@ -147,18 +147,14 @@ const RejectPage = (props: { processInstanceId: string }) => {
   const history = useHistory();
 
   const { processInstanceId } = props;
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
-  const [middleName, setMiddlename] = useState("");
+  const [fullName, setFullName] = useState("");
 
   const handleClick = () => {
     history.push("/");
   };
 
   api.camunda.getTaskProcessInstanceId(processInstanceId).then((task) => {
-    setName(task.variables.client.name);
-    setSurname(task.variables.client.surname);
-    setMiddlename(task.variables.client.middle_name);
+    setFullName(task.variables.resultClientSearch[0].firstName);
   });
 
   return (
@@ -166,7 +162,7 @@ const RejectPage = (props: { processInstanceId: string }) => {
       <div className={classes.blockInner}>
         <img src={process.env.PUBLIC_URL + "/img/res2.svg"} />
         <BccTypography type="h6" color="#1F7042" block mt="26px" mb="26px">
-          Уважаемый {`${name} ${surname} ${middleName}`}!<br />
+          Уважаемый {fullName}!<br />
           К сожалению, по предоставленным Вами данным, при предварительном
           рассмотрении ипотечного займа Вам отказано.
           <br />

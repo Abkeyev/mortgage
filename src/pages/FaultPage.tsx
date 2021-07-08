@@ -147,19 +147,14 @@ const FaultPage = (props: { processInstanceId: string }) => {
   const history = useHistory();
 
   const { processInstanceId } = props;
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
-  const [middleName, setMiddlename] = useState("");
+  const [fullName, setFullName] = useState("");
 
   const handleClick = () => {
     history.push("/");
   };
 
   api.camunda.getTaskProcessInstanceId(processInstanceId).then((task) => {
-    console.log("TASK: ", task);
-    setName(task.variables.client.name);
-    setSurname(task.variables.client.surname);
-    setMiddlename(task.variables.client.middle_name);
+    setFullName(task.variables.resultClientSearch[0].firstName);
   });
 
   return (
@@ -167,7 +162,7 @@ const FaultPage = (props: { processInstanceId: string }) => {
       <div className={classes.blockInner}>
         <img src={process.env.PUBLIC_URL + "/img/res2.svg"} />
         <BccTypography type="h6" color="#1F7042" block mt="26px" mb="26px">
-          Уважаемый {`${name} ${surname} ${middleName}`}!<br />
+          Уважаемый {fullName}!<br />
           Не удолось расчитать попробуйте позже или обратитесь в отделение Банка
         </BccTypography>
         <BccButton variant="contained" onClick={handleClick}>

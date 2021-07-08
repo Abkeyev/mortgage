@@ -4,7 +4,6 @@ import {
   BccTypography,
   BccCheckbox,
   BccInput,
-  BccInputText,
   BccLink,
   BccButton,
   BccInputTextSlider,
@@ -260,37 +259,6 @@ const Order = (props: any) => {
       });
   };
 
-  // const getRate = () => {
-  //   if (program !== -1) {
-  //     if (program.code === "0.201.1.1123") {
-  //       return "7";
-  //     } else if (program.code === "0.201.1.1129") {
-  //       return "10.75";
-  //     } else if (
-  //       program.code === "0.201.1.1131" ||
-  //       program.code === "0.201.1.1121"
-  //     ) {
-  //       if (analys) {
-  //         if (+period <= 180) {
-  //           if (+pay >= +price * 0.5) return "15.4";
-  //         }
-  //       } else {
-  //         if (+period <= 120) {
-  //           if (+pay >= +price * 0.7) {
-  //             return "11";
-  //           }
-  //         } else if (+period <= 180) {
-  //           if (+pay >= +price * 0.5) {
-  //             return "12.99";
-  //           } else if (+pay >= +price * 0.3) {
-  //             return "15.5";
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // };
-
   const startProcess = () => {
     api.camunda
       .start({
@@ -338,42 +306,6 @@ const Order = (props: any) => {
       .catch((err) => console.error(err));
   }, []);
 
-  // const countMinPay = (
-  //   period: number,
-  //   price: number,
-  //   an: boolean | -1,
-  //   prg?: ProgramProps | -1
-  // ) => {
-  //   if (
-  //     (program !== -1 &&
-  //       (program.code === "0.201.1.1121" || program.code === "0.201.1.1131")) ||
-  //     (prg &&
-  //       prg !== -1 &&
-  //       (prg.code === "0.201.1.1121" || prg.code === "0.201.1.1131"))
-  //   ) {
-  //     if (an) {
-  //       if (+period <= 180) {
-  //         setPayMin(+price * 0.5);
-  //         setPay(+price * 0.5);
-  //       }
-  //     } else {
-  //       if (+period <= 120) {
-  //         setPayMin(+price * 0.7);
-  //         setPay(+price * 0.7);
-  //       } else if (+period <= 180) {
-  //         setPayMin(+price * 0.3);
-  //         setPay(+price * 0.3);
-  //       } else {
-  //         setPayMin(3000000);
-  //         setPay(3000000);
-  //       }
-  //     }
-  //   } else {
-  //     setPayMin(3000000);
-  //     setPay(3000000);
-  //   }
-  // };
-
   return (
     <div className={classes.outerContainer} ref={props.refProp}>
       <div className={classes.container}>
@@ -411,6 +343,8 @@ const Order = (props: any) => {
                         if (e.target.value !== -1) {
                           var program = e.target.value;
                           setProgram(program);
+                          setPrice(1000000);
+                          setIncome(100000);
 
                           if (program.code === "0.201.1.1123") {
                             setPay(20);
@@ -451,25 +385,27 @@ const Order = (props: any) => {
                       fullWidth
                       label="Местонахождение недвижимости"
                       variant="outlined"
-                      value={city}
+                      value={city.code}
                       select
                       required
                       onChange={(e: any) => {
-                        var cityCode = e.target.value;
-                        setCity(cityCode);
-                        console.log("CITY", cityCode);
-
+                        const city =
+                          cities?.find((c) => c.code == e.target.value) ||
+                          ({} as City);
+                        setCity(city);
+                        setPrice(1000000);
+                        setIncome(100000);
                         // 7-20-25 Скоринг
                         if (program.code === "0.201.1.1123") {
                           if (
-                            cityCode === "AST" ||
-                            cityCode === "ALM" ||
-                            cityCode === "AKT" ||
-                            cityCode === "ATR" ||
-                            cityCode === "SMK"
+                            city.code === "AST" ||
+                            city.code === "ALM" ||
+                            city.code === "AKT" ||
+                            city.code === "ATR" ||
+                            city.code === "SMK"
                           ) {
                             setPriceMax(25000000);
-                          } else if (cityCode === "KAR") {
+                          } else if (city.code === "KAR") {
                             setPriceMax(20000000);
                           } else {
                             setPriceMax(15000000);
@@ -482,15 +418,15 @@ const Order = (props: any) => {
                           program.code === "0.201.1.1129" ||
                           program.code === "0.201.1.1121"
                         ) {
-                          if (cityCode === "AST" || cityCode === "ALM") {
+                          if (city.code === "AST" || city.code === "ALM") {
                             setPriceMax(35000000);
                           } else if (
-                            cityCode === "AKT" ||
-                            cityCode === "ATR" ||
-                            cityCode === "SMK"
+                            city.code === "AKT" ||
+                            city.code === "ATR" ||
+                            city.code === "SMK"
                           ) {
                             setPriceMax(25000000);
-                          } else if (cityCode === "KAR") {
+                          } else if (city.code === "KAR") {
                             setPriceMax(20000000);
                           } else {
                             setPriceMax(15000000);
@@ -635,7 +571,7 @@ const Order = (props: any) => {
                           }
                         } else {
                           setPeriodMax(180);
-                          setRate("15.5");
+                          setRate("15.4");
                         }
                       }}
                     />
