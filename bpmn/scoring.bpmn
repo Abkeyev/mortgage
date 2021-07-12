@@ -528,7 +528,7 @@ def requestKFO = [
   idreq: null,
   idclidep: clientDepId,
   idcli: clientId,
-  namount: client.cost,
+  namount: client.namount,
   sdclcode: client.prod_code,
   svalcode: "KZT",
   nterm: client.term,
