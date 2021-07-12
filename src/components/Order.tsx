@@ -106,6 +106,14 @@ interface Marker {
   address: string;
 }
 
+interface Profession {
+  title: string;
+}
+
+interface MaritalStatus {
+  title: string;
+}
+
 const programms: Program[] = [
   {
     title: "7-20-25 Скоринг",
@@ -129,25 +137,29 @@ const programms: Program[] = [
   },
 ];
 
-const professions = [
-  "Военнослужащий",
-  "Нотариус",
-  "Частный судебный исполнитель",
-  "Юрист",
-  "Иное",
+const professions: Profession[] = [
+  { title: "Военнослужащий" },
+  { title: "Нотариус" },
+  { title: "Частный судебный исполнитель" },
+  { title: "Юрист" },
+  { title: "Иное" },
 ];
 
-const maritalStatus = ["Холост", "Женат/Замужем"];
+const maritalStatuses: MaritalStatus[] = [
+  { title: "Холост" },
+  { title: "Женат/Замужем" },
+];
 
 const Order = (props: any) => {
   const classes = useStyles({});
 
   const [step, setStep] = useState(0);
+
   //Ориентировачный расчет ипотеки
   const [program, setProgram] = useState({} as Program);
-  const [city, setCity] = useState({} as City);
+  const [city, setCity] = useState({ code: "" } as City);
   const [cities, setCities] = useState<City[] | null>(null);
-  const [branch, setBranch] = useState({} as Marker);
+  const [branch, setBranch] = useState({ depId: "" } as Marker);
   const [branches, setBranches] = useState<Branch[] | null>(null);
   const [price, setPrice] = useState(1000000);
   const [priceMin, setPriceMin] = useState(1000000);
@@ -162,19 +174,22 @@ const Order = (props: any) => {
   const [income, setIncome] = useState(100000);
   const [rate, setRate] = useState("0");
 
-  const [isLoading, setLoading] = useState(false);
-  const [agree, setAgree] = useState(false);
-  const [family, setFamily] = useState(-1);
-  const [dependents, setDependents] = useState(0);
+  //Личные данные
   const [iin, setIin] = useState("");
-  const [code, setCode] = useState("");
-  const [profession, setProfession] = useState(-1);
+  const [iinError, setIinError] = useState<boolean>(false);
+  const [profession, setProfession] = useState({} as Profession);
+  const [family, setFamily] = useState({} as MaritalStatus);
+  const [dependents, setDependents] = useState(0);
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState<boolean>(false);
-  const [openError, setOpenError] = useState(false);
-  const [iinError, setIinError] = useState<boolean>(false);
-  const [timer, setTimer] = useState(0);
+  const [agree, setAgree] = useState(false);
+
+  // Код подтверждения
+  const [code, setCode] = useState("");
   const [otpError, setOtpError] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [isLoading, setLoading] = useState(false);
+  const [openError, setOpenError] = useState(false);
 
   React.useEffect(() => {
     let timeOut = setInterval(() => {
@@ -299,12 +314,105 @@ const Order = (props: any) => {
       .getCities()
       .then((res) => setCities(res))
       .catch((err) => console.error(err));
-
     api.reference
       .getCityBranches()
       .then((res) => setBranches(res))
       .catch((err) => console.error(err));
   }, []);
+
+  useEffect(() => {
+    setCity({ code: "" } as City);
+    setBranch({ depId: "" } as Marker);
+  }, [program]);
+
+  useEffect(() => {
+    setBranch({ depId: "" } as Marker);
+  }, [city]);
+
+  useEffect(() => {
+    if (program.code === "0.201.1.1123") {
+      setPeriodMax(300);
+      setRate("7");
+    }
+
+    if (program.code === "0.201.1.1129") {
+      setPeriodMax(180);
+      setRate("10.75");
+    }
+
+    if (!analys) {
+      if (program.code === "0.201.1.1131") {
+        if (pay >= 30 && pay <= 49) {
+          setPeriodMax(180);
+          setRate("15.5");
+        } else if (pay >= 50 && pay <= 69) {
+          setPeriodMax(180);
+          setRate("12.99");
+        } else if (pay >= 70 && pay <= 100) {
+          setPeriodMax(120);
+          setRate("11");
+        }
+      }
+
+      if (program.code === "0.201.1.1121") {
+        setPeriodMax(180);
+        if (pay >= 30 && pay <= 49) {
+          setRate("15.5");
+        } else {
+          setRate("12.99");
+        }
+      }
+    } else {
+      setPeriodMax(180);
+      setRate("15.4");
+    }
+  }, [pay, program]);
+
+  useEffect(() => {
+    setPrice(1000000);
+    setIncome(100000);
+    setPeriod(3);
+
+    // 7-20-25 Скоринг
+    if (program.code === "0.201.1.1123") {
+      if (
+        city.code === "AST" ||
+        city.code === "ALM" ||
+        city.code === "AKT" ||
+        city.code === "ATR" ||
+        city.code === "SMK"
+      ) {
+        setPriceMax(25000000);
+      } else if (city.code === "KAR") {
+        setPriceMax(20000000);
+      } else {
+        setPriceMax(15000000);
+      }
+    }
+
+    // Ипотека Баспана-Хит ДДУ 150
+    // #Ипотека ДДУ 139
+    if (program.code === "0.201.1.1129" || program.code === "0.201.1.1121") {
+      if (city.code === "AST" || city.code === "ALM") {
+        setPriceMax(35000000);
+      } else if (
+        city.code === "AKT" ||
+        city.code === "ATR" ||
+        city.code === "SMK"
+      ) {
+        setPriceMax(25000000);
+      } else if (city.code === "KAR") {
+        setPriceMax(20000000);
+      } else {
+        setPriceMax(15000000);
+      }
+    }
+
+    // #Ипотека
+    if (program.code === "0.201.1.1131") {
+      setPriceMax(100000000);
+    }
+  }, [program, city]);
 
   return (
     <div className={classes.outerContainer} ref={props.refProp}>
@@ -343,8 +451,6 @@ const Order = (props: any) => {
                         if (e.target.value !== -1) {
                           var program = e.target.value;
                           setProgram(program);
-                          setPrice(1000000);
-                          setIncome(100000);
 
                           if (program.code === "0.201.1.1123") {
                             setPay(20);
@@ -370,7 +476,9 @@ const Order = (props: any) => {
                         }
                       }}
                     >
-                      <MenuItem value={-1}>Выберите программу</MenuItem>
+                      <MenuItem value="" disabled={true}>
+                        Выберите программу
+                      </MenuItem>
                       {programms.map((b: any, index: number) => {
                         return (
                           <MenuItem key={index} value={b}>
@@ -393,53 +501,11 @@ const Order = (props: any) => {
                           cities?.find((c) => c.code == e.target.value) ||
                           ({} as City);
                         setCity(city);
-                        setPrice(1000000);
-                        setIncome(100000);
-                        // 7-20-25 Скоринг
-                        if (program.code === "0.201.1.1123") {
-                          if (
-                            city.code === "AST" ||
-                            city.code === "ALM" ||
-                            city.code === "AKT" ||
-                            city.code === "ATR" ||
-                            city.code === "SMK"
-                          ) {
-                            setPriceMax(25000000);
-                          } else if (city.code === "KAR") {
-                            setPriceMax(20000000);
-                          } else {
-                            setPriceMax(15000000);
-                          }
-                        }
-
-                        // Ипотека Баспана-Хит ДДУ 150
-                        // #Ипотека ДДУ 139
-                        if (
-                          program.code === "0.201.1.1129" ||
-                          program.code === "0.201.1.1121"
-                        ) {
-                          if (city.code === "AST" || city.code === "ALM") {
-                            setPriceMax(35000000);
-                          } else if (
-                            city.code === "AKT" ||
-                            city.code === "ATR" ||
-                            city.code === "SMK"
-                          ) {
-                            setPriceMax(25000000);
-                          } else if (city.code === "KAR") {
-                            setPriceMax(20000000);
-                          } else {
-                            setPriceMax(15000000);
-                          }
-                        }
-
-                        // #Ипотека
-                        if (program.code === "0.201.1.1131") {
-                          setPriceMax(100000000);
-                        }
                       }}
                     >
-                      <MenuItem value={-1}>Выберите город</MenuItem>
+                      <MenuItem value="" disabled={true}>
+                        Выберите город
+                      </MenuItem>
                       {cities?.map((city: City, index: number) => {
                         return (
                           <MenuItem key={index} value={city.code}>
@@ -454,7 +520,7 @@ const Order = (props: any) => {
                       fullWidth
                       label="Отделение"
                       variant="outlined"
-                      value={branch.address}
+                      value={branch.depId}
                       required
                       select
                       onChange={(e: any) => {
@@ -467,7 +533,9 @@ const Order = (props: any) => {
                         setBranch(result);
                       }}
                     >
-                      <MenuItem value={-1}>Выберите отделение</MenuItem>
+                      <MenuItem value="" disabled={true}>
+                        Выберите отделение
+                      </MenuItem>
                       {branches
                         ?.find((b) => b.code == city.id)
                         ?.markers.map((m, i) => (
@@ -536,43 +604,6 @@ const Order = (props: any) => {
                       step={1}
                       onValueChange={(e: number) => {
                         setPay(e);
-
-                        if (program.code === "0.201.1.1123") {
-                          setPeriodMax(300);
-                          setRate("7");
-                        }
-
-                        if (program.code === "0.201.1.1129") {
-                          setPeriodMax(180);
-                          setRate("10.75");
-                        }
-
-                        if (!analys) {
-                          if (program.code === "0.201.1.1131") {
-                            if (e >= 30 && e <= 49) {
-                              setPeriodMax(180);
-                              setRate("15.5");
-                            } else if (e >= 50 && e <= 69) {
-                              setPeriodMax(180);
-                              setRate("12.99");
-                            } else if (e >= 70 && e <= 100) {
-                              setPeriodMax(120);
-                              setRate("11");
-                            }
-                          }
-
-                          if (program.code === "0.201.1.1121") {
-                            setPeriodMax(180);
-                            if (e >= 30 && e <= 49) {
-                              setRate("15.5");
-                            } else {
-                              setRate("12.99");
-                            }
-                          }
-                        } else {
-                          setPeriodMax(180);
-                          setRate("15.4");
-                        }
                       }}
                     />
                   </Grid>
@@ -622,6 +653,7 @@ const Order = (props: any) => {
                       label="ИИН"
                       variant="filled"
                       fullWidth
+                      required
                       value={iin}
                       onChange={(e: any) => setIin(e.target.value)}
                       helperText={iinError ? "Неверный формат ИИН" : ""}
@@ -636,17 +668,20 @@ const Order = (props: any) => {
                   </Grid>
                   <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
                     <BccInput
+                      fullWidth
                       label="Профессия"
                       variant="outlined"
-                      fullWidth
-                      value={profession}
-                      onChange={(e: any) => setProfession(e.target.value)}
+                      value={profession.title}
                       select
+                      required
+                      onChange={(e: any) => setProfession(e.target.value)}
                     >
-                      <MenuItem value={-1}>Выберите профессию</MenuItem>
-                      {professions.map((val, index) => (
+                      <MenuItem value="" disabled={true}>
+                        Выберите профессию
+                      </MenuItem>
+                      {professions.map((val: any, index) => (
                         <MenuItem key={index} value={val}>
-                          {val}
+                          {val.title}
                         </MenuItem>
                       ))}
                     </BccInput>
@@ -654,16 +689,21 @@ const Order = (props: any) => {
                   <Grid item xl={4} lg={4} md={4} sm={12} xs={12} />
                   <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
                     <BccInput
+                      fullWidth
                       label="Семейное положение"
                       variant="outlined"
-                      fullWidth
-                      value={family}
-                      onChange={(e: any) => setFamily(e.target.value)}
+                      value={family.title}
+                      required
                       select
+                      onChange={(e: any) => setFamily(e.target.value)}
                     >
-                      <MenuItem value={-1}>Семейное положение</MenuItem>
-                      {maritalStatus.map((val, index) => (
-                        <MenuItem value={index}>{val}</MenuItem>
+                      <MenuItem value="" disabled={true}>
+                        Семейное положение
+                      </MenuItem>
+                      {maritalStatuses.map((val: any, index) => (
+                        <MenuItem key={index} value={val}>
+                          {val.title}
+                        </MenuItem>
                       ))}
                     </BccInput>
                   </Grid>
