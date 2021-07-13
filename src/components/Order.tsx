@@ -392,8 +392,7 @@ const Order = (props: any) => {
     }
 
     // Ипотека Баспана-Хит ДДУ 150
-    // #Ипотека ДДУ 139
-    if (program.code === "0.201.1.1129" || program.code === "0.201.1.1121") {
+    if (program.code === "0.201.1.1129") {
       if (city.code === "AST" || city.code === "ALM") {
         setPriceMax(35000000);
       } else if (
@@ -407,6 +406,11 @@ const Order = (props: any) => {
       } else {
         setPriceMax(15000000);
       }
+    }
+
+    // #Ипотека ДДУ 139
+    if (program.code === "0.201.1.1121") {
+      setPriceMax(80000000);
     }
 
     // #Ипотека
