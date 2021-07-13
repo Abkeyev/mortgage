@@ -409,13 +409,9 @@ const Order = (props: any) => {
     }
 
     // #Ипотека ДДУ 139
-    if (program.code === "0.201.1.1121") {
-      setPriceMax(80000000);
-    }
-
     // #Ипотека
-    if (program.code === "0.201.1.1131") {
-      setPriceMax(100000000);
+    if (program.code === "0.201.1.1131" || program.code === "0.201.1.1121") {
+      setPriceMax(1000000000);
     }
   }, [program, city]);
 
