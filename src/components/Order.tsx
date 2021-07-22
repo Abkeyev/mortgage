@@ -346,12 +346,20 @@ const Order = (props: any) => {
         if (pay >= 30 && pay <= 49) {
           setPeriodMax(180);
           setRate("15.5");
-        } else if (pay >= 50 && pay <= 69) {
+        }
+
+        if (pay >= 50 && pay <= 69) {
           setPeriodMax(180);
           setRate("12.99");
-        } else if (pay >= 70 && pay <= 100) {
-          setPeriodMax(120);
-          setRate("11");
+        }
+
+        if (pay >= 70) {
+          if (period >= 121) {
+            setRate("12.99");
+          }
+          if (period <= 120) {
+            setRate("11");
+          }
         }
       }
 
@@ -367,7 +375,7 @@ const Order = (props: any) => {
       setPeriodMax(180);
       setRate("15.4");
     }
-  }, [pay, program]);
+  }, [pay, program, period]);
 
   useEffect(() => {
     setPrice(1000000);
@@ -453,18 +461,21 @@ const Order = (props: any) => {
                           var program = e.target.value;
                           setProgram(program);
 
+                          // 70-20-25 Скоринг
                           if (program.code === "0.201.1.1123") {
                             setPay(20);
                             setPayMin(20);
                             setPeriodMax(300);
                           }
 
+                          //Ипотека Баспана-Хит ДДУ
                           if (program.code === "0.201.1.1129") {
                             setPay(20);
                             setPayMin(20);
                             setPeriodMax(180);
                           }
 
+                          //Ипотека and Ипотека ДДУ
                           if (
                             program.code === "0.201.1.1131" ||
                             program.code === "0.201.1.1121"

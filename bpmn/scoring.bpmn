@@ -518,9 +518,9 @@ def rdynlst =  [
   FIRST_INCOME: client.income,
   SPHERE: client.profession,
   TYPE_REQ: 2,
-  FIN_ANALYS: client.fin_analys,
   5.2: client.initial_fee,
-  5.1: client.cost
+  5.1: client.cost,
+  5.0: client.fin_analys
 ];
 
 def requestKFO = [
