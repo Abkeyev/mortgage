@@ -49,7 +49,11 @@ const Header = (props: any) => {
         >
           <Grid item>
             <a href="/">
-              <img src={process.env.PUBLIC_URL + "/img/logo.svg"} />
+              <img
+                width="170"
+                height="40"
+                src={process.env.PUBLIC_URL + "/img/logo-bcc.kz.png"}
+              />
             </a>
           </Grid>
           <Grid item>

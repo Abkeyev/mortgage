@@ -299,6 +299,7 @@ const Order = (props: any) => {
           phone: formatPhoneNumber(),
           agreement: agree,
           date: new Date().toJSON().slice(0, 10).split("-").reverse().join("."),
+          branchAddress: branch.address,
         },
       })
       .then((res: any) => {

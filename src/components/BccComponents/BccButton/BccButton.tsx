@@ -24,7 +24,7 @@ const BccButton = withStyles({
     },
     "&.MuiButton-containedPrimary": {
       color: "white",
-      backgroundColor: "#27AE60",
+      backgroundColor: "#4DC188",
       fontWeight: 500,
       ["@media (max-width:600px)"]: {
         height: 48,

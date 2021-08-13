@@ -27,7 +27,7 @@ const App = () => {
           )}
         />
         <Route
-          path="/fault/:processInstanceId"
+          path="/fault:processInstanceId"
           component={(props: any) => (
             <FaultPage
               processInstanceId={props.match.params.processInstanceId}

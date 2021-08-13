@@ -11,12 +11,12 @@ export interface CodeName {
 export class ReferenceController {
   async getCities(): Promise<any[]> {
     return server.get(`/api/generic/financialinstitution`, {
-      baseURL: webConfigEnv.REFERENCE_API,
+      baseURL: "http://10.20.52.96:5335/",
     });
   }
   async getCityBranches(): Promise<any[]> {
     return server.get(`/api/generic/CityBranch`, {
-      baseURL: webConfigEnv.REFERENCE_API,
+      baseURL: "http://10.20.52.96:5335/",
     });
   }
 }
