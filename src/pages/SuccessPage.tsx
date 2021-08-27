@@ -102,7 +102,6 @@ const SuccessPage = (props: { processInstanceId: string }) => {
 
   api.camunda.getTaskProcessInstanceId(processInstanceId).then((task) => {
     setFullName(task.variables.resultClientSearch[0].firstName);
-
     setCreditSum(task.variables.creditSum);
     setTerm(task.variables.term);
     setPayment(task.variables.mPayment);

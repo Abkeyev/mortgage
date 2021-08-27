@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   CircularProgress,
@@ -7,12 +7,10 @@ import {
   makeStyles,
   createStyles,
   Grid,
-  TextField,
 } from "@material-ui/core";
 import api from "../api/Api";
 import { Task } from "../api/CamundaController";
 import { history } from "../App";
-import { BccTypography } from "./BccComponents";
 
 const useStylesCircularProgressWithLabel = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,25 +45,67 @@ const useStylesCircularProgressWithLabel = makeStyles((theme: Theme) =>
       left: 0,
       top: 70,
     },
+    [theme.breakpoints.down("sm")]: {
+      root: {
+        position: "relative",
+        left: "50%",
+        top: 50,
+        transform: "TranslateX(-50%)",
+        width: 200,
+        height: "300px",
+      },
+      textNotif: {
+        fontSize: 16,
+      },
+      text: {
+        fontSize: 50,
+        marginTop: 50,
+        left: "50%",
+        top: "15px",
+        marginLeft: 0,
+        transform: "TranslateX(-50%)",
+      },
+      rootWrapper: {
+        height: "100vh",
+      },
+    },
   })
 );
 
 function CircularProgressWithLabel(props: any) {
   const classes = useStylesCircularProgressWithLabel();
+  const [width, setWidth] = useState<number>(window.innerWidth);
+  function handleWindowSizeChange() {
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    window.addEventListener("resize", handleWindowSizeChange);
+    return () => {
+      window.removeEventListener("resize", handleWindowSizeChange);
+    };
+  }, []);
 
+  const isMobile: boolean = width <= 768;
+  const sizeDesktop = 500;
+  const sizeMobile = 200;
   return (
-    <Grid container alignItems="center" justify="center">
+    <Grid
+      container
+      alignItems="center"
+      justify="center"
+      className={classes.rootWrapper}
+    >
       <Grid item>
         <Box className={classes.root}>
           <CircularProgress
             variant="determinate"
             className={classes.bottomCircular}
-            size={500}
+            size={isMobile ? sizeMobile : sizeDesktop}
             {...props}
             value={100}
           />
           <CircularProgress
-            size={500}
+            size={isMobile ? sizeMobile : sizeDesktop}
             className={classes.topCircular}
             variant="static"
             {...props}

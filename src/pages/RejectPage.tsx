@@ -6,6 +6,9 @@ import { Grid, Paper, Button } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    msg: {
+      color: "red",
+    },
     btn: {
       backgroundColor: "#4DC188",
       color: "white",
@@ -74,6 +77,7 @@ const RejectPage = (props: { processInstanceId: string }) => {
   const [fullName, setFullName] = useState("");
   const [sex, setSex] = useState("");
   const [branchAddress, setBranchAddress] = useState("");
+  const [msg, setMsg] = useState("");
 
   const handleClick = () => {
     history.push("/");
@@ -83,6 +87,7 @@ const RejectPage = (props: { processInstanceId: string }) => {
     setFullName(task.variables.resultClientSearch[0].fullName);
     setSex(task.variables.resultClientSearch[0].sex);
     setBranchAddress(task.variables.client.branchAddress);
+    setMsg(task.variables.errMsg);
   });
 
   return (
@@ -101,6 +106,7 @@ const RejectPage = (props: { processInstanceId: string }) => {
             </h3>
             <Grid container justify="center">
               <Grid className={classes.BccText}>
+                <p className={classes.msg}>{msg}</p>
                 <p>
                   Но данное решение не является окончательным и подлежит <br />
                   пересмотру.
